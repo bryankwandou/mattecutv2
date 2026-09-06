@@ -272,7 +272,12 @@ export function Studio() {
     })();
     return () => {
       alive = false;
-      if (made) URL.revokeObjectURL(made);
+      // Deliberately not revoked here. The cleanup runs before the next
+      // attempt, and that attempt can bail out early — a missing span, a
+      // decode failure — leaving the state pointing at a blob that has just
+      // been revoked. That is what turned the jacket into a broken-image
+      // icon. Every URL is already collected in `urls` and released when the
+      // page unmounts.
     };
   }, [shot, art, clothes, clothesFor, shoulders]);
 
@@ -627,7 +632,11 @@ export function Studio() {
       // the page, because a 48 MP bitmap in memory is what the cap exists
       // to avoid in the first place.
       let source: { img: HTMLImageElement; w: number; h: number } | null = null;
-      if (shot.capped || !shot.cut || enlarge > 1) {
+      // `keepOriginal` belongs in this list. Without it the photograph was
+      // never decoded on an ordinary cut, `source` stayed null, and the
+      // export's `keepOriginal && source` test failed silently — so ticking
+      // "keep the original background" did nothing at all.
+      if (shot.capped || !shot.cut || enlarge > 1 || keepOriginal) {
         try {
           const img = await loadImage(shot.originalUrl, t.studio.errDecode);
           source = { img, w: img.naturalWidth, h: img.naturalHeight };

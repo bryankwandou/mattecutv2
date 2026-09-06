@@ -6,6 +6,7 @@ import { select, swatchCss, type Swatch } from "@/lib/backdrops";
 import {
   creditLine,
   loadPhotos,
+  fetchBackdrop,
   photoSrc,
   searchPhotos,
   type Bucket,
@@ -177,9 +178,11 @@ export function BackdropCatalogue({
   const takePhoto = async (p: Photo) => {
     setFetching(p.f ?? p.t ?? "");
     try {
-      const res = await fetch(photoSrc(p, true));
-      const blob = await res.blob();
-      // Only CC BY carries an obligation, so only CC BY sends a credit back.
+      // Never `fetch(...).blob()` on its own here. Commons answers a width
+      // it will not render with HTTP 400 and an HTML page, and taking the
+      // body without checking is how that page reached an image decoder and
+      // came back as "backdrop: could not decode".
+      const blob = await fetchBackdrop(p);
       // Only CC BY carries an obligation. The offline pack is public domain
       // and CC0 only, which is why it is the part that ships.
       onPickPhoto(blob, tab === "by" ? creditLine(p) : null);

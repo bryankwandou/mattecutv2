@@ -137,8 +137,71 @@ export function loadPhotos(bucket: Bucket): Promise<Photo[]> {
  * read out of the URL rather than assumed, and swapped for the size a
  * backdrop actually needs.
  */
-export function fullSize(thumb: string, width = 2048): string {
+/**
+ * The widths Wikimedia will actually render, largest first.
+ *
+ * Commons stopped generating thumbnails at arbitrary widths. Asking for
+ * 2048 now returns 400 with "Use thumbnail sizes listed on
+ * https://w.wiki/GHai" — and the app, fetching that as if it were a
+ * picture, handed an HTML error page to the decoder and reported "backdrop:
+ * could not decode". Every catalogue photograph failed that way.
+ *
+ * Which widths are served also varies per file: measured across six rows,
+ * one offered 250 through 1920 and another offered only 330. So there is no
+ * single safe number, and the only correct approach is to try the list.
+ */
+export const THUMB_WIDTHS = [1920, 1280, 960, 500, 330, 250] as const;
+
+/** Swap the width in a Commons thumbnail path. */
+export function atWidth(thumb: string, width: number): string {
   return thumb.replace(/\/(\d+)px-/, `/${width}px-`);
+}
+
+/** Kept for callers that want the biggest plausible size in one string.
+ *  Prefer `fetchBackdrop`, which checks that it exists. */
+export function fullSize(thumb: string, width = 1280): string {
+  return atWidth(thumb, width);
+}
+
+/**
+ * Fetch the largest rendering of a catalogue photograph that exists.
+ *
+ * Tries the standard widths in turn and stops at the first that answers
+ * with an actual image. The content type is checked rather than assumed:
+ * Commons answers a refused width with an HTML page and HTTP 400, and
+ * trusting the status alone is how that page reached an image decoder.
+ */
+export async function fetchBackdrop(p: Photo): Promise<Blob> {
+  if (p.f) {
+    const res = await fetch(`/offline/${p.f}.webp`);
+    if (!res.ok) throw new Error(`offline backdrop ${res.status}`);
+    return res.blob();
+  }
+
+  const thumb = thumbUrl(p.t ?? "");
+  if (!thumb) throw new Error("backdrop has no source");
+
+  let lastStatus = 0;
+  for (const w of THUMB_WIDTHS) {
+    try {
+      const res = await fetch(atWidth(thumb, w));
+      lastStatus = res.status;
+      if (!res.ok) continue;
+      const blob = await res.blob();
+      if (!blob.type.startsWith("image/")) continue;
+      return blob;
+    } catch {
+      // A network failure on one width says nothing about the next.
+    }
+  }
+
+  // The width the index itself recorded is the one Commons definitely had.
+  const res = await fetch(thumb);
+  if (res.ok) {
+    const blob = await res.blob();
+    if (blob.type.startsWith("image/")) return blob;
+  }
+  throw new Error(`backdrop unavailable (last status ${lastStatus || res.status})`);
 }
 
 /**
