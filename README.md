@@ -34,7 +34,7 @@ sebelum orang mencoba, bukan sesudah.
 - Lima tingkat model untuk jaringan dan perangkat yang berbeda. Dua tingkat
   MediaPipe (`src/lib/lite.ts`, sekitar 12 MB untuk selfie segmenter) dan tiga
   tingkat ONNX/ISNet (`src/lib/matting.ts`): ringan (bobot 42,3 MB, total
-  sekitar 54 MB), seimbang (84,1 MB, sekitar 95 MB di CPU / 106 MB dengan
+  sekitar 54 MB di CPU / 64 MB dengan WebGPU), seimbang (84,1 MB, sekitar 95 MB di CPU / 106 MB dengan
   WebGPU), dan maksimum (168 MB, sekitar 179 / 190 MB). Bisa diganti di tengah
   penyuntingan; potongan diulang pada gambar yang sama tanpa kehilangan
   latar yang sudah dipilih.

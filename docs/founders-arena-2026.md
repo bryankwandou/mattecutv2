@@ -1,6 +1,6 @@
 # Mattecut untuk Founders Arena 2026
 
-Situs: https://mattecut.vercel.app | Kode: https://github.com/bryankwandou/mattecut
+Situs: https://mattecut.vercel.app | Kode: https://github.com/bryankwandou/mattecutv2
 Formulir resmi: techsummit.ekraf.go.id. Formulir diisi sendiri oleh pendaftar; dokumen ini hanya bahan bantu.
 
 ## Ringkasan pitch

@@ -96,7 +96,7 @@ Tidak diklaim: perbandingan kualitas hasil, kecepatan, harga, atau fitur lain te
 | Draf otomatis di peramban (IndexedDB) | `src/lib/draft.ts` |
 | 18 bahasa, RTL untuk Arab, bahasa awal dari IP | `src/lib/i18n/`, `proxy.ts` |
 
-Catatan jujur: berkas model segmentasi tingkat atas diunduh dari CDN pustaka saat pertama dipakai (`src/lib/catalog.ts`), dan sebagian foto latar berasal dari Wikimedia Commons (`src/lib/photos.ts`). Yang diunduh adalah model dan aset, bukan foto pengguna. Ukuran unduhan tiap tingkat model: gunakan angka dari halaman `/studio` setelah selaras (README masih perlu diselaraskan, 54 MB vs 95 MB).
+Catatan jujur: berkas model segmentasi tingkat atas diunduh dari CDN pustaka saat pertama dipakai (`src/lib/catalog.ts`), dan sebagian foto latar berasal dari Wikimedia Commons (`src/lib/photos.ts`). Yang diunduh adalah model dan aset, bukan foto pengguna. Ukuran unduhan awal tiap tingkat model sama dengan teks di situs: sekitar 12 MB sampai 190 MB, dengan mode tanpa hapus latar 0 MB, ringan sekitar 54 MB (64 MB dengan WebGPU), seimbang sekitar 95 MB (106 MB dengan WebGPU), dan tertinggi sekitar 179 MB (190 MB dengan WebGPU).
 
 ## Traksi (Step 4): KOSONG, isi hanya dengan data nyata
 
