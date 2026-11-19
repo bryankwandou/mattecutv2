@@ -2,7 +2,7 @@ import type { Dict } from "../dict";
 
 export const de: Dict = {
   meta: {
-    title: "Roto — Bildhintergründe entfernen, ohne sie hochzuladen",
+    title: "Mattecut — Bildhintergründe entfernen, ohne sie hochzuladen",
     description:
       "Ein Hintergrundentferner, der im Browser läuft. Bilder gehen an keinen Server, es gibt keine Warteschlange, und das Ergebnis wird in der Originalauflösung heruntergeladen.",
     studioTitle: "Studio",
@@ -28,12 +28,12 @@ export const de: Dict = {
   },
   lang: { label: "Sprache" },
   hero: {
-    badge: "Läuft auf Ihrem Gerät",
-    titleA: "Motiv freistellen.",
-    titleB: "Rest verwerfen.",
-    lead: "Roto schneidet Bildhintergründe direkt im Browser heraus. Die Datei verlässt Ihr Gerät nie, also gibt es keine Warteschlange, kein Tageslimit und nichts, was Sie darüber glauben müssten, was mit Ihrem Foto passiert.",
+    badge: "Edge-AI · Privacy First · Ohne Konto",
+    titleA: "Passbild- und Produktkatalog-Studio für kleine Unternehmen",
+    titleB: "Direkt in Ihrem Browser",
+    lead: "Entfernen Sie den Fotohintergrund, setzen Sie einen formellen Studiohintergrund ein oder erstellen Sie Produktkatalogfotos, alles auf Ihrem Gerät verarbeitet. Es wird nichts auf einen Server hochgeladen.",
     cta: "Erstes Bild freistellen",
-    note: "Ohne Konto · ohne Upload · ohne Wasserzeichen",
+    note: "Jetzt ausprobieren - ohne Anmeldung",
     caption: "Alpha-Matte · 8 Bit",
   },
   pillars: [
@@ -94,8 +94,8 @@ export const de: Dict = {
     heading: "Was Sie vorher wissen sollten",
     items: [
       {
-        title: "54 MB beim ersten Mal",
-        body: "Das Segmentierungsmodell muss zuerst in den Browser. Nur einmal, danach bleibt es gespeichert. Bei begrenztem Datenvolumen besser über WLAN.",
+        title: "Erster Download: 12–190 MB",
+        body: "Das hängt von der Qualitätsstufe ab. Ohne Hintergrundentfernung: 0 MB. Ausgewogen (Standard) sind etwa 95 MB, 106 MB mit WebGPU; höchste Stufe 179 MB, 190 MB mit WebGPU. Nur einmal, danach bleibt es gespeichert. Bei begrenztem Datenvolumen besser über WLAN.",
       },
       {
         title: "Ältere Geräte sind langsamer",
@@ -123,9 +123,16 @@ export const de: Dict = {
     pick: "Bild auswählen",
     formats: "JPG · PNG · WEBP — höchstens 12 MB",
     qualityLabel: "Qualität",
+    applyModel: "Dieses Modell verwenden",
+    liteTitle: "Ultraleicht",
+    liteNote:
+      "{mb} MB Modell · kleinster Download, gröbste Kanten an Haaren",
+    fineTitle: "Haargenau",
+    fineNote:
+      "{mb} MB Modell · behandelt Haare als eigene Ebene, Download bleibt klein",
     lightTitle: "Leicht",
     lightNote:
-      "{mb} MB Modell · am leichtesten, für schwache Geräte und Verbindungen",
+      "{mb} MB Modell · kleiner Download, schärfere Kanten als ultraleicht",
     balancedTitle: "Ausgewogen",
     balancedNote:
       "{mb} MB Modell · die mittlere Wahl, für die meisten Fotos genug",
@@ -145,8 +152,34 @@ export const de: Dict = {
       "Der Katalog ließ sich nicht lesen — das Netz versagte oder der Ursprung verweigerte die Antwort. Die Größen oben sind derzeit unbestätigt.",
     downloadPng: "PNG herunterladen",
     transparentSuffix: "transparent",
+    cutToggle: "Hintergrund entfernen",
+    cutToggleNote:
+      "Aus lassen, wenn Sie nur schärfen, vergrößern oder ein Sakko hinzufügen wollen. Das Modell wird gar nicht geladen.",
+    cutSkipped:
+      "Der Hintergrund blieb erhalten. Es wurde nichts freigestellt.",
+    bgNeedsCut:
+      "Ein neuer Hintergrund braucht den Freisteller. Schalten Sie ihn ein und laden Sie das Bild erneut.",
+    enlargeLabel: "Vergrößern",
+    enlargeNote:
+      "Rechnet auf eine größere Größe hoch. Es entsteht kein Detail, das die Kamera nie aufgenommen hat — Skalierung, keine Rettung.",
+    sharpenLabel: "Schärfe",
+    sharpenLevels: ["Aus", "Leicht", "Mittel", "Stark"],
+    sharpenNote:
+      "Erhöht den Kantenkontrast nur der Farbe, nie der Schnittkante. Es entsteht kein Detail, das die Kamera nicht aufgenommen hat.",
+    keepOriginal: "Originalhintergrund behalten",
+    keepOriginalNote:
+      "Exportiert das Foto wie es ankam: schärfer, ungeschnitten.",
     exportNote:
       "Wird immer in der Originalauflösung exportiert, nicht in der Vorschaugröße.",
+    exportNoteCapped:
+      "Exportiert mit {w} × {h} px, kleiner als das Original: dieses Gerät konnte die volle Auflösung nicht durch das Modell tragen.",
+    exportNoteRestored:
+      "Exportiert in den vollen {w} × {h} px Ihrer Datei. Das Modell lief auf einer kleineren Kopie, daher ist nur die Schnittkante weicher — jedes Pixel im Motiv ist Ihr Original.",
+    lowPower:
+      "Dieses Gerät meldet begrenzten Speicher oder wenige Prozessorkerne, daher ist das leichteste Modell voreingestellt und Fotos werden vor der Verarbeitung auf {px} px an der langen Kante verkleinert. Alle Stufen bleiben wählbar.",
+    zoomOut: "Kleiner anzeigen",
+    zoomIn: "Größer anzeigen",
+    zoomFit: "An Bildschirm anpassen",
     another: "Anderes Bild",
     restored: "Dein letztes Ergebnis wurde nach dem Schließen des Tabs wiederhergestellt.",
     modelNote: "Modell jederzeit wechseln; der Freisteller wird auf demselben Bild neu berechnet.",
@@ -161,6 +194,7 @@ export const de: Dict = {
       "Automatisch aus Schultern und Hals im Freisteller platziert.",
     attireManual:
       "Die Schultern waren auf diesem Foto nicht lesbar. Größe und Höhe bitte selbst einstellen.",
+    attireReset: "Größe und Höhe zurücksetzen",
     attireSize: "Größe",
     attireDrop: "Höhe",
     firstDownloadNote:
@@ -181,7 +215,7 @@ export const de: Dict = {
   },
   compare: {
     before: "Original",
-    after: "Roto",
+    after: "Mattecut",
     sliderLabel: "Ziehen, um Vorher und Nachher zu vergleichen",
     altBefore: "Das Originalbild vor der Verarbeitung",
     altAfter: "Das Ergebnis nach dem Entfernen des Hintergrunds",
@@ -220,6 +254,31 @@ export const de: Dict = {
     ],
     upload: "Eigenes Bild",
     uploadHint: "Die Datei bleibt auf diesem Gerät",
+    catalogueOpen:
+      "Alle Hintergründe ansehen",
+    catalogueTitle:
+      "Hintergrund-Katalog",
+    catalogueCount:
+      "{n} Hintergründe, auf diesem Gerät erzeugt — nichts heruntergeladen",
+    catalogueByCount:
+      "{n} Fotos unter CC BY — frei nutzbar, aber die Urheberin oder der Urheber muss genannt werden",
+    catalogueOfflineCount:
+      "{n} Fotos in der App selbst — sie funktionieren ohne Verbindung",
+    catalogueTabOffline: "Offline",
+    creditRequired:
+      "Überall dort, wo Sie dies teilen, ist diese Nennung Pflicht: {credit}",
+    cataloguePhotoCount:
+      "{n} Fotos, gemeinfrei oder CC0, von dieser Seite ausgeliefert",
+    catalogueTabGradients: "Farben",
+    catalogueTabPhotos: "Fotos",
+    catalogueSearch:
+      "Suchen: blue, soft, deep teal, gradient, #1f6fff",
+    catalogueEmpty:
+      "Nichts gefunden. Versuchen Sie einen Farbnamen oder einen Hex-Code.",
+    catalogueFailed:
+      "Die Fotoliste konnte nicht geladen werden. Prüfen Sie die Verbindung und versuchen Sie es erneut.",
+    creditShown:
+      "Nennen Sie dieses Foto überall dort, wo Sie das Ergebnis teilen: {credit}",
     fitCover: "Füllen",
     fitContain: "Einpassen",
   },

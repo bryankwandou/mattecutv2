@@ -2,7 +2,7 @@ import type { Dict } from "../dict";
 
 export const ja: Dict = {
   meta: {
-    title: "Roto — アップロードせずに画像の背景を消す",
+    title: "Mattecut — アップロードせずに画像の背景を消す",
     description:
       "ブラウザーの中で動く背景除去ツール。画像はどのサーバーにも送られず、順番待ちもなく、結果は元の解像度のままダウンロードできます。",
     studioTitle: "スタジオ",
@@ -28,12 +28,12 @@ export const ja: Dict = {
   },
   lang: { label: "言語" },
   hero: {
-    badge: "お使いの端末で動きます",
-    titleA: "被写体だけ残す。",
-    titleB: "あとは捨てる。",
-    lead: "Roto はブラウザーの中で画像の背景を切り抜きます。ファイルが端末から出ることはないので、順番待ちも1日あたりの上限もなく、写真に何が起きるかを誰かの言葉で信じる必要もありません。",
+    badge: "Edge-AI · Privacy First · アカウント不要",
+    titleA: "小規模事業者向け 証明写真・商品カタログスタジオ",
+    titleB: "ブラウザーでそのまま使えます",
+    lead: "写真の背景を消して、フォーマルなスタジオ背景に替えたり、商品カタログ用の写真を作ったりできます。処理はすべてお使いの端末の中で完結し、サーバーへのアップロードはありません。",
     cta: "最初の1枚を切り抜く",
-    note: "アカウント不要 · アップロードなし · 透かしなし",
+    note: "今すぐ試す - 登録不要",
     caption: "アルファマット · 8ビット",
   },
   pillars: [
@@ -94,8 +94,8 @@ export const ja: Dict = {
     heading: "試す前に知っておきたいこと",
     items: [
       {
-        title: "初回に 54 MB のダウンロード",
-        body: "セグメンテーションモデルを先にブラウザーへ運ぶ必要があります。一度きりで、あとは保存されたままです。通信量が限られているなら Wi-Fi で。",
+        title: "初回に 12〜190 MB のダウンロード",
+        body: "画質レベルによって変わります。背景を消さないモードは 0 MB。バランス（既定）は約 95 MB（ブラウザーが WebGPU を使う場合は 106 MB）、最高は 179 MB（WebGPU では 190 MB）です。一度きりで、あとは保存されます。通信量に上限がある場合は Wi-Fi で行ってください。",
       },
       {
         title: "古い端末ほど遅い",
@@ -123,9 +123,16 @@ export const ja: Dict = {
     pick: "画像を選ぶ",
     formats: "JPG · PNG · WEBP — 最大 12 MB",
     qualityLabel: "品質",
+    applyModel: "このモデルを使う",
+    liteTitle: "超軽量",
+    liteNote:
+      "{mb} MB モデル・ダウンロード最小、髪の境界は最も粗い",
+    fineTitle: "髪対応",
+    fineNote:
+      "{mb} MB モデル・髪を独立した層として扱います。ダウンロードは小さめのまま。",
     lightTitle: "軽量",
     lightNote:
-      "{mb} MB のモデル · 最軽量。非力な端末や細い回線向け",
+      "{mb} MB モデル・ダウンロード小さめ、超軽量より輪郭が鮮明",
     balancedTitle: "標準",
     balancedNote:
       "{mb} MB のモデル · 中間の選択。ほとんどの写真に十分",
@@ -145,8 +152,32 @@ export const ja: Dict = {
       "一覧を読み取れませんでした — 通信に失敗したか、配信元が応答を拒みました。上の段階に表示された容量は今は裏付けがありません。",
     downloadPng: "PNG をダウンロード",
     transparentSuffix: "透明",
+    cutToggle: "背景を削除",
+    cutToggleNote:
+      "鮮明化、拡大、上着の追加だけならオフのままで。モデルは一切ダウンロードされません。",
+    cutSkipped: "背景はそのままです。切り抜きは行いませんでした。",
+    bgNeedsCut:
+      "背景の変更には切り抜きが必要です。背景削除を有効にして画像を読み直してください。",
+    enlargeLabel: "拡大",
+    enlargeNote: "大きいサイズに再サンプルします。カメラが記録しなかった細部は戻りません。",
+    sharpenLabel: "シャープネス",
+    sharpenLevels: ["オフ", "弱", "中", "強"],
+    sharpenNote:
+      "輪郭のコントラストを色にだけ加えます。切り口には触れず、カメラが記録していない細部を作り出しません。",
+    keepOriginal: "元の背景を残す",
+    keepOriginalNote:
+      "写真をそのまま書き出します。鮮明に、切り抜かずに。",
     exportNote:
       "書き出しは常に元の解像度で、プレビューの大きさではありません。",
+    exportNoteCapped:
+      "{w} × {h} px で書き出しました。元の解像度より小さいのは、この端末では全解像度をモデルに通せなかったためです。",
+    exportNoteRestored:
+      "ファイルの完全な {w} × {h} px で書き出しました。モデルは縮小コピーで動いたため、柔らかいのは切り口だけです。被写体の画素はすべて元のままです。",
+    lowPower:
+      "この端末はメモリまたはコア数が少ないと報告しています。そのため最も軽いモデルを既定で選び、処理前に写真の長辺を {px} px まで縮小します。どの段階も引き続き選択できます。",
+    zoomOut: "小さく表示",
+    zoomIn: "大きく表示",
+    zoomFit: "画面に合わせる",
     another: "別の画像",
     restored: "タブが閉じたあと、直前の結果を復元しました。",
     modelNote: "モデルはいつでも切り替えられます。同じ画像で切り抜きをやり直します。",
@@ -161,6 +192,7 @@ export const ja: Dict = {
       "切り抜きの肩と首から自動で配置しました。",
     attireManual:
       "この写真では肩を読み取れませんでした。大きさと高さはご自分で調整してください。",
+    attireReset: "サイズと高さを戻す",
     attireSize: "大きさ",
     attireDrop: "高さ",
     firstDownloadNote:
@@ -182,7 +214,7 @@ export const ja: Dict = {
   },
   compare: {
     before: "元画像",
-    after: "Roto",
+    after: "Mattecut",
     sliderLabel: "ドラッグして処理前と処理後を比べます",
     altBefore: "処理前の元画像",
     altAfter: "背景を消したあとの結果",
@@ -221,6 +253,31 @@ export const ja: Dict = {
     ],
     upload: "自分の画像",
     uploadHint: "ファイルはこの端末に残ります",
+    catalogueOpen:
+      "すべての背景を見る",
+    catalogueTitle:
+      "背景カタログ",
+    catalogueCount:
+      "{n} 件の背景。この端末で生成しており、ダウンロードはありません。",
+    catalogueByCount:
+      "CC BY の写真 {n} 枚。自由に使えますが、作者名の表示が必要です。",
+    catalogueOfflineCount:
+      "アプリ内に {n} 枚。接続なしで使えます。",
+    catalogueTabOffline: "オフライン",
+    creditRequired:
+      "これを共有する場所すべてで表示が必要です: {credit}",
+    cataloguePhotoCount:
+      "写真 {n} 枚。パブリックドメインまたは CC0 で、このサイトから配信しています。",
+    catalogueTabGradients: "色",
+    catalogueTabPhotos: "写真",
+    catalogueSearch:
+      "検索: blue, soft, deep teal, gradient, #1f6fff",
+    catalogueEmpty:
+      "一致するものがありません。色名か 16 進コードをお試しください。",
+    catalogueFailed:
+      "写真一覧を読み込めませんでした。接続を確認してやり直してください。",
+    creditShown:
+      "結果を共有する場所すべてでこの写真の出典を表示してください: {credit}",
     fitCover: "埋める",
     fitContain: "収める",
   },

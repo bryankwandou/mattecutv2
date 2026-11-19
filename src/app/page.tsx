@@ -12,13 +12,17 @@ import {
 } from "lucide-react";
 import { motion, useReducedMotion } from "motion/react";
 import { GithubIcon } from "@/components/github-icon";
-import { RotoLogo, RotoMark } from "@/components/logo";
+import { MattecutLogo, MattecutMark } from "@/components/logo";
 import { HeroVisual } from "@/components/hero-visual";
 import { Reveal } from "@/components/reveal";
+import { Walkthrough } from "@/components/walkthrough";
 import { LanguagePicker, ThemeToggle } from "@/components/switches";
 import { useI18n } from "@/components/preferences";
+import { UseCases } from "@/components/use-cases";
+import { HowItWorks } from "@/components/how-it-works";
+import { landingStrings } from "@/lib/i18n/segments/landing";
 
-const REPO = "https://github.com/bryankwandou/roto";
+const REPO = "https://github.com/bryankwandou/mattecut";
 
 export default function Home() {
   const { t } = useI18n();
@@ -34,11 +38,14 @@ export default function Home() {
       <Nav />
       <main id="main" className="relative">
         <Hero />
+        <UseCases />
+        <HowItWorks />
         <Pillars />
         <Steps />
         <Features />
         <Honesty />
         <Closer />
+        <Positioning />
       </main>
       <Footer />
     </>
@@ -51,8 +58,8 @@ function Nav() {
   return (
     <nav className="sticky top-0 z-50 border-b border-line-soft bg-ink/85 backdrop-blur-xl">
       <div className="mx-auto flex h-16 max-w-6xl items-center justify-between gap-3 px-4 sm:px-6">
-        <RotoMark size={26} className="sm:hidden" />
-        <RotoLogo size={26} className="hidden sm:inline-flex" />
+        <MattecutMark size={26} className="sm:hidden" />
+        <MattecutLogo size={26} className="hidden sm:inline-flex" />
         <div className="flex items-center gap-1.5 sm:gap-2">
           <a
             href={REPO}
@@ -100,6 +107,8 @@ function Aurora() {
 
 function Hero() {
   const { t } = useI18n();
+  // hero.note already carries the "try now, no sign-up" microcopy;
+  // landingStrings.ctaMicro is kept as a spare and is not rendered here.
 
   return (
     <section className="relative overflow-hidden border-b border-line-soft">
@@ -107,13 +116,9 @@ function Hero() {
       <div className="relative mx-auto grid max-w-6xl gap-14 px-4 py-20 sm:px-6 sm:py-28 lg:grid-cols-2 lg:items-center lg:gap-16">
         <div>
           <Reveal>
-            <span className="mono inline-flex items-center gap-2 rounded-full border border-line bg-surface px-3 py-1.5 text-[11px] uppercase tracking-[0.1em] text-text-dim">
-              <span className="relative flex h-1.5 w-1.5">
-                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-ok opacity-60" />
-                <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-ok" />
-              </span>
+            <p className="mono text-[11px] uppercase tracking-[0.14em] text-text-dim">
               {t.hero.badge}
-            </span>
+            </p>
           </Reveal>
 
           <Reveal delay={0.05}>
@@ -175,6 +180,7 @@ function Pillars() {
 
   return (
     <section className="border-b border-line-soft">
+      <h2 className="sr-only">{t.features.eyebrow}</h2>
       <div className="mx-auto grid max-w-6xl gap-px overflow-hidden bg-line-soft px-4 sm:px-6 md:grid-cols-3">
         {t.pillars.map((it, i) => {
           const Icon = icons[i];
@@ -214,25 +220,11 @@ function Steps() {
           </h2>
         </Reveal>
 
-        <div className="mt-14 grid gap-x-10 gap-y-12 sm:grid-cols-2">
-          {t.steps.items.map((s, i) => (
-            <Reveal key={s.title} delay={i * 0.06}>
-              <div className="flex gap-5">
-                <span className="mono shrink-0 text-sm text-accent-text">
-                  {String(i + 1).padStart(2, "0")}
-                </span>
-                <div className="min-w-0">
-                  <h3 className="text-base font-semibold tracking-[-0.01em]">
-                    {s.title}
-                  </h3>
-                  <p className="mt-2 text-pretty text-sm leading-relaxed text-text-dim">
-                    {s.body}
-                  </p>
-                </div>
-              </div>
-            </Reveal>
-          ))}
-        </div>
+        <Reveal delay={0.06}>
+          <div className="mt-14">
+            <Walkthrough />
+          </div>
+        </Reveal>
       </div>
     </section>
   );
@@ -314,7 +306,7 @@ function Closer() {
     <section className="relative overflow-hidden border-b border-line-soft">
       <div className="relative mx-auto max-w-6xl px-4 py-24 text-center sm:px-6 sm:py-32">
         <Reveal>
-          <RotoMark size={44} className="mx-auto" />
+          <MattecutMark size={44} className="mx-auto" />
           <h2 className="mx-auto mt-8 max-w-xl text-balance text-3xl font-semibold tracking-[-0.03em] sm:text-5xl">
             {t.closer.heading}
           </h2>
@@ -337,13 +329,27 @@ function Closer() {
   );
 }
 
+function Positioning() {
+  const { locale } = useI18n();
+
+  return (
+    <section className="border-b border-line-soft">
+      <Reveal>
+        <p className="mx-auto max-w-2xl px-4 py-12 text-center text-balance text-lg font-medium leading-relaxed tracking-[-0.01em] text-text sm:px-6 sm:text-xl">
+          {landingStrings[locale].positioning}
+        </p>
+      </Reveal>
+    </section>
+  );
+}
+
 function Footer() {
   const { t } = useI18n();
 
   return (
     <footer className="mx-auto flex max-w-6xl flex-col gap-5 px-4 py-10 text-sm text-text-faint sm:px-6">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <RotoLogo size={20} className="inline-flex text-text-dim" />
+        <MattecutLogo size={20} className="inline-flex text-text-dim" />
         <div className="flex flex-wrap items-center gap-5">
           <a
             href={REPO}

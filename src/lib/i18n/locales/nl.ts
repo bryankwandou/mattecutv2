@@ -2,7 +2,7 @@ import type { Dict } from "../dict";
 
 export const nl: Dict = {
   meta: {
-    title: "Roto — achtergronden weghalen zonder te uploaden",
+    title: "Mattecut — achtergronden weghalen zonder te uploaden",
     description:
       "Een achtergrondverwijderaar die in de browser draait. Afbeeldingen gaan naar geen enkele server, er is geen wachtrij en het resultaat wordt op de oorspronkelijke resolutie gedownload.",
     studioTitle: "Studio",
@@ -28,12 +28,12 @@ export const nl: Dict = {
   },
   lang: { label: "Taal" },
   hero: {
-    badge: "Draait op je eigen apparaat",
-    titleA: "Til het onderwerp eruit.",
-    titleB: "Gooi de rest weg.",
-    lead: "Roto knipt achtergronden weg binnen de browser zelf. Het bestand verlaat je apparaat nooit, dus geen wachtrij, geen daglimiet en niets wat je op goed vertrouwen hoeft aan te nemen over wat er met je foto gebeurt.",
+    badge: "Edge-AI · Privacy First · Zonder account",
+    titleA: "Pasfoto- en productcatalogusstudio voor kleine bedrijven",
+    titleB: "Direct in je browser",
+    lead: "Verwijder de achtergrond van een foto, vervang hem door een formele studioachtergrond of maak productcatalogusfoto's, alles verwerkt op je eigen apparaat. Er wordt niets naar een server geüpload.",
     cta: "Knip je eerste afbeelding",
-    note: "Geen account · geen upload · geen watermerk",
+    note: "Probeer het nu - zonder aanmelden",
     caption: "Alpha matte · 8 bits",
   },
   pillars: [
@@ -94,8 +94,8 @@ export const nl: Dict = {
     heading: "Wat je beter kunt weten voor je begint",
     items: [
       {
-        title: "Een eerste download van 54 MB",
-        body: "Het segmentatiemodel moet eerst in de browser komen. Eén keer, daarna blijft het bewaard. Met een beperkte bundel: doe het via wifi.",
+        title: "Een eerste download van 12–190 MB",
+        body: "Dat hangt af van het kwaliteitsniveau. Zonder achtergrond verwijderen: 0 MB. Gebalanceerd (standaard) is ongeveer 95 MB, 106 MB als de browser WebGPU gebruikt; hoogste is 179 MB, 190 MB met WebGPU. Eén keer, daarna blijft het bewaard. Met een beperkte bundel: doe het via wifi.",
       },
       {
         title: "Oudere apparaten voelen trager",
@@ -123,9 +123,16 @@ export const nl: Dict = {
     pick: "Afbeelding kiezen",
     formats: "JPG · PNG · WEBP — maximaal 12 MB",
     qualityLabel: "Kwaliteit",
+    applyModel: "Dit model gebruiken",
+    liteTitle: "Ultralicht",
+    liteNote:
+      "Model van {mb} MB · kleinste download, grofst rond haar",
+    fineTitle: "Haarbewust",
+    fineNote:
+      "Model van {mb} MB · behandelt haar als aparte laag, download blijft klein",
     lightTitle: "Licht",
     lightNote:
-      "Model van {mb} MB · het lichtst, voor beperkte apparaten en verbindingen",
+      "Model van {mb} MB · kleine download, scherpere randen dan ultralicht",
     balancedTitle: "Gebalanceerd",
     balancedNote:
       "Model van {mb} MB · de middenkeuze, genoeg voor de meeste foto's",
@@ -145,8 +152,34 @@ export const nl: Dict = {
       "De catalogus kon niet worden gelezen — het netwerk faalde of de bron weigerde. De formaten bij de niveaus hierboven zijn nu niet geverifieerd.",
     downloadPng: "PNG downloaden",
     transparentSuffix: "transparant",
+    cutToggle: "Achtergrond verwijderen",
+    cutToggleNote:
+      "Laat uit als u alleen wilt verscherpen, vergroten of een colbert wilt toevoegen. Het model wordt niet gedownload.",
+    cutSkipped:
+      "De achtergrond bleef staan. Er is niets uitgeknipt.",
+    bgNeedsCut:
+      "Een andere achtergrond vereist de uitsnede. Zet verwijderen aan en laad de afbeelding opnieuw.",
+    enlargeLabel: "Vergroten",
+    enlargeNote:
+      "Herbemonstert naar een groter formaat. Het haalt geen detail terug dat de camera nooit vastlegde.",
+    sharpenLabel: "Scherpte",
+    sharpenLevels: ["Uit", "Licht", "Gemiddeld", "Sterk"],
+    sharpenNote:
+      "Voegt randcontrast toe aan alleen de kleur, nooit aan de sniprand. Het haalt geen detail terug dat de camera niet vastlegde.",
+    keepOriginal: "Originele achtergrond behouden",
+    keepOriginalNote:
+      "Exporteert de foto zoals hij kwam: scherper, ongeknipt.",
     exportNote:
       "Altijd geëxporteerd op de oorspronkelijke resolutie, niet op het formaat van de voorvertoning.",
+    exportNoteCapped:
+      "Geëxporteerd op {w} × {h} px, kleiner dan het origineel: dit apparaat kon de volledige resolutie niet door het model halen.",
+    exportNoteRestored:
+      "Geëxporteerd op de volle {w} × {h} px van uw bestand. Het model werkte op een kleinere kopie, dus alleen de sniprand is zachter — elke pixel in het onderwerp is uw origineel.",
+    lowPower:
+      "Dit apparaat meldt beperkt geheugen of weinig processorkernen, dus het lichtste model staat standaard aan en foto’s worden voor verwerking verkleind tot {px} px op de lange zijde. Alle niveaus blijven kiesbaar.",
+    zoomOut: "Kleiner tonen",
+    zoomIn: "Groter tonen",
+    zoomFit: "Passend maken",
     another: "Andere afbeelding",
     restored: "Je laatste resultaat is hersteld nadat het tabblad sloot.",
     modelNote: "Wissel altijd van model; de uitsnede wordt op dezelfde afbeelding opnieuw gemaakt.",
@@ -161,6 +194,7 @@ export const nl: Dict = {
       "Automatisch geplaatst op basis van schouders en hals in de uitsnede.",
     attireManual:
       "De schouders waren niet leesbaar op deze foto. Stel grootte en hoogte zelf in.",
+    attireReset: "Grootte en hoogte herstellen",
     attireSize: "Grootte",
     attireDrop: "Hoogte",
     firstDownloadNote:
@@ -181,7 +215,7 @@ export const nl: Dict = {
   },
   compare: {
     before: "Origineel",
-    after: "Roto",
+    after: "Mattecut",
     sliderLabel: "Sleep om voor en na te vergelijken",
     altBefore: "De oorspronkelijke afbeelding voor de verwerking",
     altAfter: "Het resultaat nadat de achtergrond weg is",
@@ -220,6 +254,31 @@ export const nl: Dict = {
     ],
     upload: "Je eigen afbeelding",
     uploadHint: "Het bestand blijft op dit apparaat",
+    catalogueOpen:
+      "Alle achtergronden bekijken",
+    catalogueTitle:
+      "Achtergrondcatalogus",
+    catalogueCount:
+      "{n} achtergronden, op dit apparaat gemaakt — niets gedownload",
+    catalogueByCount:
+      "{n} foto’s onder CC BY — vrij te gebruiken, maar de maker moet vermeld worden",
+    catalogueOfflineCount:
+      "{n} foto’s in de app zelf — die werken zonder verbinding",
+    catalogueTabOffline: "Offline",
+    creditRequired:
+      "Vermelding verplicht overal waar u dit deelt: {credit}",
+    cataloguePhotoCount:
+      "{n} foto’s, publiek domein of CC0, vanaf deze site geleverd",
+    catalogueTabGradients: "Kleuren",
+    catalogueTabPhotos: "Foto’s",
+    catalogueSearch:
+      "Zoeken: blue, soft, deep teal, gradient, #1f6fff",
+    catalogueEmpty:
+      "Geen resultaat. Probeer een kleurnaam of een hexcode.",
+    catalogueFailed:
+      "De fotolijst kon niet worden geladen. Controleer de verbinding en probeer opnieuw.",
+    creditShown:
+      "Vermeld deze foto overal waar u het resultaat deelt: {credit}",
     fitCover: "Vullen",
     fitContain: "Passend",
   },

@@ -19,6 +19,7 @@ export function CompareSlider({
   after,
   backdrop = null,
   overlay = null,
+  maxVh = 68,
   className = "",
 }: {
   before: string;
@@ -26,7 +27,23 @@ export function CompareSlider({
   /** CSS background for the result side; null shows the checkerboard. */
   backdrop?: string | null;
   /** Drawn over the result, in fractions of the frame. Mirrors the export. */
-  overlay?: { src: string; x: number; y: number; w: number } | null;
+  overlay?: {
+    src: string;
+    x: number;
+    y: number;
+    w: number;
+    tilt: number;
+    /** Same clothing mask the export uses, applied here as a CSS mask so the
+     *  preview keeps predicting the file. */
+    mask?: string | null;
+    /** True when the image already covers the whole frame because it was
+     *  poured into the body outline. Nothing left to place or turn. */
+    fitted?: boolean;
+  } | null;
+  /** How much of the viewport height the frame may use. The reader controls
+   *  this: browser zoom is not a substitute, because it enlarges the whole
+   *  interface rather than the picture being examined. */
+  maxVh?: number;
   className?: string;
 }) {
   const { t } = useI18n();
@@ -61,7 +78,7 @@ export function CompareSlider({
     <div
       ref={box}
       dir="ltr"
-      className={`relative select-none overflow-hidden rounded-xl hairline ${className}`}
+      className={`relative mx-auto w-fit select-none overflow-hidden rounded-xl hairline ${className}`}
       style={{ touchAction: "pan-y" }}
       onPointerDown={(e) => {
         setDragging(true);
@@ -73,7 +90,33 @@ export function CompareSlider({
       <img
         src={before}
         alt={t.compare.altBefore}
-        className="block w-full"
+        // This image sizes the whole frame; every other layer is absolutely
+        // positioned against it. Capping its height therefore scales the
+        // comparison, the backdrop and the jacket together, and keeps the
+        // overlay's fractional coordinates exact. A tall photo used to run
+        // past the bottom of the screen with no way to pull back.
+        className="block"
+        style={{
+          // Fill the height that is available, rather than only refusing to
+          // exceed it.
+          //
+          // This used to be `w-auto` with a maximum height, which is correct
+          // for a large photograph and useless for a small one: a 204 by 247
+          // pixel file rendered at 204 by 247 in the middle of a column more
+          // than a thousand pixels wide. Somebody looked at that and said
+          // they could not see the picture at all, and they were right — it
+          // was the size of a stamp on an empty screen.
+          //
+          // Height drives the size now and the width follows the aspect
+          // ratio, so a small file grows to meet the same cap a large one is
+          // held to. `object-fit` only matters for a panorama wide enough
+          // that the width cap binds first; letterboxing it is better than
+          // stretching a face.
+          height: `${maxVh}vh`,
+          width: "auto",
+          maxWidth: "100%",
+          objectFit: "contain",
+        }}
         draggable={false}
       />
 
@@ -94,19 +137,41 @@ export function CompareSlider({
           draggable={false}
         />
         {overlay && (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img
-            src={overlay.src}
-            alt=""
-            aria-hidden
-            className="absolute"
-            style={{
-              left: `${overlay.x * 100}%`,
-              top: `${overlay.y * 100}%`,
-              width: `${overlay.w * 100}%`,
-            }}
-            draggable={false}
-          />
+          // The clothing mask covers the whole frame, so it is applied to a
+          // frame-sized layer rather than to the garment's own box. Same
+          // shape the canvas uses in compose.ts, so what is on screen still
+          // predicts the exported file.
+          <div
+            className="absolute inset-0"
+            style={
+              overlay.mask
+                ? {
+                    maskImage: `url("${overlay.mask}")`,
+                    WebkitMaskImage: `url("${overlay.mask}")`,
+                    maskSize: "100% 100%",
+                    WebkitMaskSize: "100% 100%",
+                  }
+                : undefined
+            }
+          >
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={overlay.src}
+              alt=""
+              aria-hidden
+              className={overlay.fitted ? "absolute inset-0 h-full w-full" : "absolute"}
+              style={overlay.fitted ? undefined : {
+                left: `${overlay.x * 100}%`,
+                top: `${overlay.y * 100}%`,
+                width: `${overlay.w * 100}%`,
+                // Same pivot as the canvas: the top centre, which is the
+                // collar. Any other origin turns the jacket off the neck.
+                transform: `rotate(${overlay.tilt}rad)`,
+                transformOrigin: "top center",
+              }}
+              draggable={false}
+            />
+          </div>
         )}
       </div>
 

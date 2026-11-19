@@ -2,7 +2,7 @@ import type { Dict } from "../dict";
 
 export const it: Dict = {
   meta: {
-    title: "Roto — togli lo sfondo alle immagini senza caricarle",
+    title: "Mattecut — togli lo sfondo alle immagini senza caricarle",
     description:
       "Uno scontornatore che funziona dentro il browser. Le immagini non vengono inviate a nessun server, non c'è coda e il risultato si scarica alla risoluzione originale.",
     studioTitle: "Studio",
@@ -28,12 +28,12 @@ export const it: Dict = {
   },
   lang: { label: "Lingua" },
   hero: {
-    badge: "Funziona sul tuo dispositivo",
-    titleA: "Solleva il soggetto.",
-    titleB: "Butta il resto.",
-    lead: "Roto ritaglia lo sfondo delle immagini dentro il browser stesso. Il file non lascia mai il tuo dispositivo, quindi niente coda, niente quota giornaliera e niente da prendere per buono su cosa succede alla tua foto.",
+    badge: "Edge-AI · Privacy First · Senza account",
+    titleA: "Studio per foto tessera e cataloghi prodotto per piccole imprese",
+    titleB: "Direttamente nel tuo browser",
+    lead: "Rimuovi lo sfondo di una foto, sostituiscilo con uno sfondo da studio formale o crea foto di catalogo prodotto, il tutto elaborato sul tuo dispositivo. Non viene caricato nulla su un server.",
     cta: "Ritaglia la prima immagine",
-    note: "Senza account · senza caricamento · senza filigrana",
+    note: "Provalo ora - senza registrazione",
     caption: "Alpha matte · 8 bit",
   },
   pillars: [
@@ -94,8 +94,8 @@ export const it: Dict = {
     heading: "Cose da sapere prima di provarlo",
     items: [
       {
-        title: "Un primo download da 54 MB",
-        body: "Il modello di segmentazione deve prima arrivare nel browser. Una volta sola, poi resta salvato. Con traffico limitato, fallo in Wi-Fi.",
+        title: "Primo download da 12–190 MB",
+        body: "Dipende dal livello di qualità. Senza rimozione dello sfondo: 0 MB. Bilanciato (predefinito) pesa circa 95 MB, 106 MB se il browser usa WebGPU; il massimo è 179 MB, 190 MB con WebGPU. Una volta sola, poi resta salvato. Con traffico limitato, fallo in Wi-Fi.",
       },
       {
         title: "I dispositivi vecchi vanno più piano",
@@ -123,9 +123,16 @@ export const it: Dict = {
     pick: "Scegli un'immagine",
     formats: "JPG · PNG · WEBP — massimo 12 MB",
     qualityLabel: "Qualità",
+    applyModel: "Usa questo modello",
+    liteTitle: "Ultraleggero",
+    liteNote:
+      "Modello da {mb} MB · il download più piccolo, più grezzo sui capelli",
+    fineTitle: "Attento ai capelli",
+    fineNote:
+      "Modello da {mb} MB · tratta i capelli come livello a sé, download ancora piccolo",
     lightTitle: "Leggero",
     lightNote:
-      "Modello da {mb} MB · il più leggero, per dispositivi e reti limitati",
+      "Modello da {mb} MB · download piccolo, bordi più nitidi di ultraleggero",
     balancedTitle: "Bilanciato",
     balancedNote:
       "Modello da {mb} MB · la scelta intermedia, basta per quasi tutte le foto",
@@ -145,8 +152,34 @@ export const it: Dict = {
       "Il catalogo non è stato letto — la rete ha fallito o l’origine ha rifiutato. Le dimensioni dei livelli qui sopra ora non sono verificate.",
     downloadPng: "Scarica il PNG",
     transparentSuffix: "trasparente",
+    cutToggle: "Rimuovi lo sfondo",
+    cutToggleNote:
+      "Lascialo spento per solo nitidezza, ingrandimento o giacca. Il modello non viene neppure scaricato.",
+    cutSkipped:
+      "Lo sfondo è stato mantenuto. Nulla è stato ritagliato.",
+    bgNeedsCut:
+      "Cambiare sfondo richiede il ritaglio. Attiva la rimozione e ricarica l’immagine.",
+    enlargeLabel: "Ingrandisci",
+    enlargeNote:
+      "Ricampiona a una dimensione maggiore. Non recupera dettagli mai registrati dalla fotocamera: è scalatura, non recupero.",
+    sharpenLabel: "Nitidezza",
+    sharpenLevels: ["Spento", "Lieve", "Media", "Forte"],
+    sharpenNote:
+      "Aggiunge contrasto ai bordi solo del colore, mai al bordo del ritaglio. Non recupera dettagli che la fotocamera non ha registrato.",
+    keepOriginal: "Mantieni lo sfondo originale",
+    keepOriginalNote:
+      "Esporta la foto com’è arrivata: più nitida, senza ritaglio.",
     exportNote:
       "Esportato sempre alla risoluzione originale, non alla dimensione dell'anteprima.",
+    exportNoteCapped:
+      "Esportato a {w} × {h} px, più piccolo dell’originale: questo dispositivo non è riuscito a portare la risoluzione piena attraverso il modello.",
+    exportNoteRestored:
+      "Esportato agli interi {w} × {h} px del tuo file. Il modello ha lavorato su una copia ridotta, quindi solo il bordo del ritaglio è più morbido: ogni pixel del soggetto è il tuo originale.",
+    lowPower:
+      "Questo dispositivo segnala memoria o core limitati, quindi viene scelto il modello più leggero e le foto vengono ridotte a {px} px sul lato lungo prima dell’elaborazione. Tutti i livelli restano selezionabili.",
+    zoomOut: "Mostra più piccolo",
+    zoomIn: "Mostra più grande",
+    zoomFit: "Adatta allo schermo",
     another: "Un'altra immagine",
     restored: "L’ultimo risultato è stato ripristinato dopo la chiusura della scheda.",
     modelNote: "Cambia modello quando vuoi; il ritaglio viene rifatto sulla stessa immagine.",
@@ -161,6 +194,7 @@ export const it: Dict = {
       "Posizionato automaticamente da spalle e collo nel ritaglio.",
     attireManual:
       "Le spalle non sono leggibili in questa foto. Imposta tu dimensione e altezza.",
+    attireReset: "Reimposta dimensione e altezza",
     attireSize: "Dimensione",
     attireDrop: "Altezza",
     firstDownloadNote:
@@ -181,7 +215,7 @@ export const it: Dict = {
   },
   compare: {
     before: "Originale",
-    after: "Roto",
+    after: "Mattecut",
     sliderLabel: "Trascina per confrontare prima e dopo",
     altBefore: "L'immagine originale prima dell'elaborazione",
     altAfter: "Il risultato dopo la rimozione dello sfondo",
@@ -220,6 +254,31 @@ export const it: Dict = {
     ],
     upload: "Una tua immagine",
     uploadHint: "Il file resta su questo dispositivo",
+    catalogueOpen:
+      "Sfoglia tutti gli sfondi",
+    catalogueTitle:
+      "Catalogo sfondi",
+    catalogueCount:
+      "{n} sfondi, generati su questo dispositivo — nulla scaricato",
+    catalogueByCount:
+      "{n} foto con licenza CC BY — libere da usare, ma l’autore va citato",
+    catalogueOfflineCount:
+      "{n} foto salvate nell’app — funzionano senza connessione",
+    catalogueTabOffline: "Offline",
+    creditRequired:
+      "Citazione obbligatoria ovunque tu condivida questo: {credit}",
+    cataloguePhotoCount:
+      "{n} foto, dominio pubblico o CC0, servite da questo sito",
+    catalogueTabGradients: "Colori",
+    catalogueTabPhotos: "Foto",
+    catalogueSearch:
+      "Cerca: blue, soft, deep teal, gradient, #1f6fff",
+    catalogueEmpty:
+      "Nessun risultato. Prova un nome di colore o un codice esadecimale.",
+    catalogueFailed:
+      "Impossibile caricare l’elenco delle foto. Controlla la connessione e riprova.",
+    creditShown:
+      "Cita questa foto ovunque tu condivida il risultato: {credit}",
     fitCover: "Riempi",
     fitContain: "Adatta",
   },

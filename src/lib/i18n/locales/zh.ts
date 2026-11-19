@@ -2,7 +2,7 @@ import type { Dict } from "../dict";
 
 export const zh: Dict = {
   meta: {
-    title: "Roto — 不用上传就能抠掉图片背景",
+    title: "Mattecut — 不用上传就能抠掉图片背景",
     description:
       "一个在浏览器里运行的背景去除工具。图片不会发往任何服务器，不用排队，结果按原始分辨率下载。",
     studioTitle: "工作台",
@@ -27,12 +27,12 @@ export const zh: Dict = {
   },
   lang: { label: "语言" },
   hero: {
-    badge: "在你的设备上运行",
-    titleA: "留下主体。",
-    titleB: "扔掉其余。",
-    lead: "Roto 直接在浏览器里抠掉图片背景。文件从不离开你的设备，因此没有排队，没有每日额度，也没有什么关于照片去向的说法需要你凭信任接受。",
+    badge: "Edge-AI · Privacy First · 无需账号",
+    titleA: "面向小微商家的证件照与商品图录工作室",
+    titleB: "直接在浏览器里使用",
+    lead: "去掉照片背景，换成正式的影棚背景，或制作商品图录照片，全部在你的设备上处理，不会上传到任何服务器。",
     cta: "抠第一张图",
-    note: "无需账号 · 无需上传 · 没有水印",
+    note: "立即试用 - 无需注册",
     caption: "Alpha matte · 8 位",
   },
   pillars: [
@@ -93,8 +93,8 @@ export const zh: Dict = {
     heading: "动手之前值得知道的事",
     items: [
       {
-        title: "首次要下载 54 MB",
-        body: "分割模型得先进到浏览器里。只有一次，之后就存着了。流量有限的话，请在 Wi-Fi 下完成。",
+        title: "首次下载 12–190 MB",
+        body: "取决于质量档位。不去除背景的模式：0 MB。均衡档（默认）约 95 MB，浏览器使用 WebGPU 时为 106 MB；最高档 179 MB，使用 WebGPU 时为 190 MB。只有一次，之后就存着了。流量有限的话，请在 Wi-Fi 下完成。",
       },
       {
         title: "旧设备会更慢",
@@ -121,9 +121,16 @@ export const zh: Dict = {
     pick: "选择图片",
     formats: "JPG · PNG · WEBP — 最大 12 MB",
     qualityLabel: "质量",
+    applyModel: "使用此模型",
+    liteTitle: "超轻量",
+    liteNote:
+      "{mb} MB 模型 · 下载最小，发丝边缘最粗",
+    fineTitle: "发丝感知",
+    fineNote:
+      "{mb} MB 模型 · 将头发视为独立图层，下载仍然较小",
     lightTitle: "轻量",
     lightNote:
-      "{mb} MB 模型 · 最轻，适合配置和网络受限的设备",
+      "{mb} MB 模型 · 下载较小，边缘比超轻量更锐利",
     balancedTitle: "均衡",
     balancedNote:
       "{mb} MB 模型 · 折中选择，足够应付大多数照片",
@@ -143,7 +150,29 @@ export const zh: Dict = {
       "清单读取失败 — 网络中断或来源拒绝了请求。上面各档位标注的大小目前没有得到证实。",
     downloadPng: "下载 PNG",
     transparentSuffix: "透明",
+    cutToggle: "移除背景",
+    cutToggleNote: "只想锐化、放大或加西装时请保持关闭，模型根本不会下载。",
+    cutSkipped: "背景已保留，未做任何裁切。",
+    bgNeedsCut: "更换背景需要先裁切。请开启背景移除并重新加载图片。",
+    enlargeLabel: "放大",
+    enlargeNote: "重新采样到更大尺寸。它无法找回相机从未记录的细节。",
+    sharpenLabel: "锐度",
+    sharpenLevels: ["关闭", "轻", "中", "强"],
+    sharpenNote:
+      "仅对颜色增加边缘对比，不影响裁切边缘，也不会凭空造出相机未记录的细节。",
+    keepOriginal: "保留原背景",
+    keepOriginalNote:
+      "按原样导出照片：更锐利，不裁切。",
     exportNote: "始终按原始分辨率导出，而不是预览的尺寸。",
+    exportNoteCapped:
+      "已按 {w} × {h} px 导出，小于原图：此设备无法让完整分辨率通过模型。",
+    exportNoteRestored:
+      "已按您文件的完整 {w} × {h} px 导出。模型在缩小副本上运行，因此仅裁切边缘较柔和——主体内的每个像素都是您的原图。",
+    lowPower:
+      "此设备报告内存或处理器核心有限，因此默认选择最轻的模型，并在处理前将照片的长边缩小到 {px} px。所有档位仍可选择。",
+    zoomOut: "缩小显示",
+    zoomIn: "放大显示",
+    zoomFit: "适应屏幕",
     another: "换一张图",
     restored: "标签页关闭后，已恢复你上次的结果。",
     modelNote: "随时切换模型，将在同一张图上重新抠图。",
@@ -158,6 +187,7 @@ export const zh: Dict = {
       "根据抠图中的肩线与颈部自动摆放。",
     attireManual:
       "这张照片读不出肩线，请自行调整大小和高度。",
+    attireReset: "重置大小与高度",
     attireSize: "大小",
     attireDrop: "高度",
     firstDownloadNote:
@@ -178,7 +208,7 @@ export const zh: Dict = {
   },
   compare: {
     before: "原图",
-    after: "Roto",
+    after: "Mattecut",
     sliderLabel: "拖动以对比处理前后",
     altBefore: "处理之前的原图",
     altAfter: "去掉背景之后的结果",
@@ -217,6 +247,31 @@ export const zh: Dict = {
     ],
     upload: "自己的图片",
     uploadHint: "文件留在这台设备上",
+    catalogueOpen:
+      "浏览全部背景",
+    catalogueTitle:
+      "背景目录",
+    catalogueCount:
+      "{n} 个背景，在此设备上生成——无需下载",
+    catalogueByCount:
+      "{n} 张 CC BY 照片——可自由使用，但必须标明作者",
+    catalogueOfflineCount:
+      "{n} 张照片存在应用内——无需联网即可使用",
+    catalogueTabOffline: "离线",
+    creditRequired:
+      "无论在何处分享，都必须标明：{credit}",
+    cataloguePhotoCount:
+      "{n} 张照片，公有领域或 CC0，由本站提供",
+    catalogueTabGradients: "颜色",
+    catalogueTabPhotos: "照片",
+    catalogueSearch:
+      "搜索：blue、soft、deep teal、gradient、#1f6fff",
+    catalogueEmpty:
+      "没有匹配项。试试颜色名称或十六进制代码。",
+    catalogueFailed:
+      "无法加载照片列表。请检查网络后重试。",
+    creditShown:
+      "无论在何处分享成果，请标明此照片：{credit}",
     fitCover: "填满",
     fitContain: "适应",
   },

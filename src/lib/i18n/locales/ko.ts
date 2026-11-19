@@ -2,7 +2,7 @@ import type { Dict } from "../dict";
 
 export const ko: Dict = {
   meta: {
-    title: "Roto — 업로드 없이 이미지 배경 지우기",
+    title: "Mattecut — 업로드 없이 이미지 배경 지우기",
     description:
       "브라우저 안에서 동작하는 배경 제거 도구입니다. 이미지는 어떤 서버로도 전송되지 않고, 대기열도 없으며, 결과는 원본 해상도 그대로 내려받습니다.",
     studioTitle: "스튜디오",
@@ -27,12 +27,12 @@ export const ko: Dict = {
   },
   lang: { label: "언어" },
   hero: {
-    badge: "내 기기에서 동작합니다",
-    titleA: "피사체만 들어내고.",
-    titleB: "나머지는 버립니다.",
-    lead: "Roto는 브라우저 안에서 이미지 배경을 잘라냅니다. 파일이 기기를 벗어나지 않으니 대기열도, 하루 사용량 제한도 없고, 사진에 무슨 일이 일어나는지 누구의 말을 믿을 필요도 없습니다.",
+    badge: "Edge-AI · Privacy First · 계정 불필요",
+    titleA: "소상공인을 위한 증명사진 & 제품 카탈로그 스튜디오",
+    titleB: "브라우저에서 바로 사용하세요",
+    lead: "사진 배경을 지우고 격식 있는 스튜디오 배경으로 바꾸거나 제품 카탈로그 사진을 만드세요. 모든 처리는 기기 안에서 이루어지며 서버로 업로드되지 않습니다.",
     cta: "첫 이미지 잘라내기",
-    note: "계정 없음 · 업로드 없음 · 워터마크 없음",
+    note: "지금 써보기 - 가입 불필요",
     caption: "알파 매트 · 8비트",
   },
   pillars: [
@@ -93,8 +93,8 @@ export const ko: Dict = {
     heading: "써 보기 전에 알아 둘 것들",
     items: [
       {
-        title: "처음 한 번 54MB 내려받기",
-        body: "분할 모델이 먼저 브라우저로 들어와야 합니다. 한 번뿐이고 그다음엔 저장된 채로 남습니다. 데이터가 빠듯하다면 Wi-Fi에서 하세요.",
+        title: "첫 다운로드 12~190 MB",
+        body: "품질 단계에 따라 다릅니다. 배경을 지우지 않는 모드는 0 MB입니다. 균형(기본)은 약 95 MB(브라우저가 WebGPU를 쓰면 106 MB), 최고는 179 MB(WebGPU 사용 시 190 MB)입니다. 한 번뿐이고 그다음엔 저장된 채로 남습니다. 데이터가 제한적이라면 Wi-Fi로 받으세요.",
       },
       {
         title: "오래된 기기는 더 느립니다",
@@ -122,9 +122,16 @@ export const ko: Dict = {
     pick: "이미지 선택",
     formats: "JPG · PNG · WEBP — 최대 12MB",
     qualityLabel: "품질",
+    applyModel: "이 모델 사용",
+    liteTitle: "초경량",
+    liteNote:
+      "{mb} MB 모델 · 다운로드가 가장 작고, 머리카락 경계는 가장 거칩니다",
+    fineTitle: "머리카락 인식",
+    fineNote:
+      "{mb} MB 모델 · 머리카락을 별도 층으로 다룹니다. 다운로드는 여전히 작습니다.",
     lightTitle: "가볍게",
     lightNote:
-      "{mb} MB 모델 · 가장 가벼움, 사양이 낮은 기기와 느린 회선용",
+      "{mb} MB 모델 · 다운로드가 작고, 초경량보다 윗선이 선명합니다",
     balancedTitle: "균형",
     balancedNote:
       "{mb} MB 모델 · 중간 선택, 대부분의 사진에 충분",
@@ -144,7 +151,32 @@ export const ko: Dict = {
       "목록을 읽지 못했습니다 — 네트워크가 실패했거나 원본이 거부했습니다. 위 단계에 적힌 용량은 지금은 확인되지 않은 값입니다.",
     downloadPng: "PNG 내려받기",
     transparentSuffix: "투명",
+    cutToggle: "배경 제거",
+    cutToggleNote:
+      "선명하게 하거나 확대하거나 재킷만 더할 거라면 꺼 두세요. 모델은 아예 내려받지 않습니다.",
+    cutSkipped: "배경을 그대로 두었습니다. 잘라낸 것은 없습니다.",
+    bgNeedsCut:
+      "배경을 바꾸려면 잘라내기가 필요합니다. 배경 제거를 켜고 이미지를 다시 불러오세요.",
+    enlargeLabel: "확대",
+    enlargeNote:
+      "더 큰 크기로 다시 샘플링합니다. 카메라가 기록하지 않은 세부는 되살리지 못합니다.",
+    sharpenLabel: "선명도",
+    sharpenLevels: ["끕", "약하게", "보통", "강하게"],
+    sharpenNote:
+      "색상에만 율곽 대비를 더합니다. 잘라난 가장자리에는 적용되지 않으며, 카메라가 기록하지 않은 세부를 만들지 않습니다.",
+    keepOriginal: "원본 배경 유지",
+    keepOriginalNote:
+      "사진을 그대로 내보냅니다. 더 선명하게, 자르지 않고.",
     exportNote: "미리보기 크기가 아니라 언제나 원본 해상도로 내보냅니다.",
+    exportNoteCapped:
+      "{w} × {h} px로 내보냈습니다. 원본보다 작은 이유는 이 기기가 전체 해상도를 모델에 통과시키지 못했기 때문입니다.",
+    exportNoteRestored:
+      "파일 전체 {w} × {h} px로 내보냈습니다. 모델은 축소본에서 실행되어 잘라난 가장자리만 부드러울 뿐, 피사체 안의 모든 픽셀은 원본입니다.",
+    lowPower:
+      "이 기기는 메모리나 프로세서 코어가 제한적이라고 알려 왔습니다. 그래서 가장 가벼운 모델이 기본으로 선택되고, 처리 전에 사진의 긴 변을 {px} px로 줄입니다. 모든 단계는 그대로 선택할 수 있습니다.",
+    zoomOut: "작게 보기",
+    zoomIn: "크게 보기",
+    zoomFit: "화면에 맞추기",
     another: "다른 이미지",
     restored: "탭이 닫힌 뒤 마지막 결과를 복원했습니다.",
     modelNote: "모델은 언제든 바꿀 수 있으며, 같은 이미지로 다시 잘라냅니다.",
@@ -159,6 +191,7 @@ export const ko: Dict = {
       "잘라낸 이미지의 어깨와 목에서 자동으로 배치했습니다.",
     attireManual:
       "이 사진에서는 어깨를 읽지 못했습니다. 크기와 높이를 직접 맞춰 주세요.",
+    attireReset: "크기와 높이 초기화",
     attireSize: "크기",
     attireDrop: "높이",
     firstDownloadNote:
@@ -179,7 +212,7 @@ export const ko: Dict = {
   },
   compare: {
     before: "원본",
-    after: "Roto",
+    after: "Mattecut",
     sliderLabel: "끌어서 처리 전후를 비교합니다",
     altBefore: "처리 전 원본 이미지",
     altAfter: "배경을 지운 뒤의 결과",
@@ -218,6 +251,31 @@ export const ko: Dict = {
     ],
     upload: "내 이미지",
     uploadHint: "파일은 이 기기에 남습니다",
+    catalogueOpen:
+      "모든 배경 보기",
+    catalogueTitle:
+      "배경 카탈로그",
+    catalogueCount:
+      "배경 {n}개. 이 기기에서 생성되며 다운로드는 없습니다.",
+    catalogueByCount:
+      "CC BY 사진 {n}장. 자유롭게 쓸 수 있지만 저작자를 밝혀야 합니다.",
+    catalogueOfflineCount:
+      "앱 안에 저장된 사진 {n}장 — 연결 없이도 쓸 수 있습니다",
+    catalogueTabOffline: "오프라인",
+    creditRequired:
+      "이것을 공유하는 모든 곳에 표기가 필요합니다: {credit}",
+    cataloguePhotoCount:
+      "사진 {n}장. 퍼블릭 도메인 또는 CC0이며 이 사이트에서 제공됩니다.",
+    catalogueTabGradients: "색상",
+    catalogueTabPhotos: "사진",
+    catalogueSearch:
+      "검색: blue, soft, deep teal, gradient, #1f6fff",
+    catalogueEmpty:
+      "일치하는 항목이 없습니다. 색이름이나 16진수 코드를 시도해 보세요.",
+    catalogueFailed:
+      "사진 목록을 불러오지 못했습니다. 연결을 확인하고 다시 시도하세요.",
+    creditShown:
+      "결과물을 공유하는 모든 곳에 이 사진의 출처를 밝혀 주세요: {credit}",
     fitCover: "채우기",
     fitContain: "맞추기",
   },

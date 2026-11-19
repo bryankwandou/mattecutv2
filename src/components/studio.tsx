@@ -1,6 +1,12 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import {
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+  useSyncExternalStore,
+} from "react";
 import Link from "next/link";
 import {
   ArrowLeft,
@@ -9,6 +15,8 @@ import {
   Loader2,
   RotateCcw,
   ShieldCheck,
+  Minus,
+  Plus,
   Sparkles,
   TriangleAlert,
   Upload,
@@ -16,19 +24,24 @@ import {
 import { CompareSlider } from "@/components/compare-slider";
 import { BackgroundPicker } from "@/components/background-picker";
 import { CatalogAudit } from "@/components/catalog-audit";
-import { RotoLogo } from "@/components/logo";
+import { MattecutLogo } from "@/components/logo";
 import { LanguagePicker, ThemeToggle } from "@/components/switches";
 import { useI18n } from "@/components/preferences";
 import { fill } from "@/lib/i18n";
 import {
   cutout,
+  findClothes,
   warm,
   isWarm,
   canGpu,
   downloadMb,
+  isWeakDevice,
   type Progress,
   type Quality,
 } from "@/lib/matting";
+import { CAP } from "@/lib/fit";
+import type { Clothes } from "@/lib/lite";
+import type { Shoulders } from "@/lib/pose";
 import {
   backdropUrl,
   backgroundToCss,
@@ -39,9 +52,25 @@ import {
 } from "@/lib/compose";
 import { clearDraft, loadDraft, saveDraft } from "@/lib/draft";
 import { findPortrait, type Portrait } from "@/lib/portrait";
+import { SHARPEN_STEPS, sharpenTo, type SharpenLevel } from "@/lib/sharpen";
+import { clothingSpans, fitGarment } from "@/lib/garment";
+import {
+  SamplePhotos,
+  ScenarioPicker,
+  presetFromUrl,
+  saveDataOn,
+  type Scenario,
+} from "@/components/studio-samples";
+import { QuickBackdrops, ResultStatus, WarmStatus } from "@/components/result-extras";
 
 const ACCEPTED = ["image/jpeg", "image/png", "image/webp"];
 const MAX_BYTES = 12 * 1024 * 1024;
+
+/** The weak-device answer never changes within a page life, so there is
+ *  nothing to subscribe to — and the server, which has no `navigator`, is
+ *  told the safe answer instead of being made to guess. */
+const subscribeNever = () => () => {};
+const serverIsFine = () => false;
 
 /** Jacket artwork, by file name under /attire. */
 const ATTIRE = ["charcoal", "navy", "blazer"] as const;
@@ -56,6 +85,11 @@ const JACKET_SPREAD = 1.2;
 /** How far above the detected neck the collar sits, in image heights. */
 const JACKET_RISE = 0.035;
 
+/** The same idea measured against the shoulder span instead of the frame,
+ *  so it survives any crop: a collar sits about a fifth of a shoulder width
+ *  above the line between the shoulders. */
+const JACKET_RISE_SPAN = 0.2;
+
 type Shot = {
   file: File;
   originalUrl: string;
@@ -69,13 +103,27 @@ type Shot = {
   quality: Quality;
   /** Null when the silhouette did not read as a frontal, chest-up portrait. */
   portrait: Portrait | null;
+  /** True when the photo was shrunk to fit this machine, so the export note
+   *  stops promising a resolution this cut never had. */
+  capped: boolean;
+  /** The photograph's own size. The model works on a shrunk copy, but the
+   *  export is written at these numbers, so they are what the note quotes. */
+  srcW: number;
+  srcH: number;
+  /** False when the reader asked for everything except the cut. The master
+   *  is then the photograph itself, and the background picker has nothing
+   *  to paint behind. */
+  cut: boolean;
 };
 
 export function Studio() {
   const { t } = useI18n();
   const [shot, setShot] = useState<Shot | null>(null);
   const [bg, setBg] = useState<Background>({ kind: "transparent" });
-  const [quality, setQuality] = useState<Quality>("balanced");
+  // Null until someone actually picks a tier, so the default can be derived
+  // from the machine rather than written into state and then corrected. The
+  // correction is what would flash Balanced on a netbook for one frame.
+  const [picked, setPicked] = useState<Quality | null>(null);
   const [progress, setProgress] = useState<Progress | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [dragOver, setDragOver] = useState(false);
@@ -83,6 +131,16 @@ export function Studio() {
   // Whether this browser can run the model on the GPU. It changes the size
   // of the runtime it downloads, so the tier labels wait for the answer.
   const [onGpu, setOnGpu] = useState(false);
+  // Whether this machine should be spared the heavier work. Read through
+  // useSyncExternalStore rather than an effect: `navigator` does not exist
+  // during the server render, and this is exactly the shape React provides
+  // for a value the server cannot know — false there, the real answer once
+  // the client takes over, and no hydration mismatch in between.
+  const weak = useSyncExternalStore(subscribeNever, isWeakDevice, serverIsFine);
+  // A netbook starts on the lightest tier without being asked. This moves
+  // the default only: every stop on the slider stays reachable, so a reader
+  // willing to wait is never locked out of the better cut.
+  const quality: Quality = picked ?? (weak ? "lite" : "balanced");
   // A warm-up is a large download with no picture on screen yet. Left
   // unannounced it reads as a dead page, which is exactly how it was read.
   const [warming, setWarming] = useState(false);
@@ -97,8 +155,83 @@ export function Studio() {
   // sliders read as corrections rather than as the settings themselves.
   const [attireScale, setAttireScale] = useState(1);
   const [attireDrop, setAttireDrop] = useState(0);
+  // Where this photo's own clothing is. Asked for once per picture, and only
+  // when a jacket is actually wanted, because it costs a 16 MB download that
+  // nobody choosing "no jacket" should pay for.
+  const [clothes, setClothes] = useState<Clothes | null>(null);
+  // Shoulder points, when the pose network found them. They decide the
+  // garment's width, centre and angle; the clothing mask decides where it
+  // is allowed to show. Neither replaces the other.
+  const [shoulders, setShoulders] = useState<Shoulders | null>(null);
+  const [clothesFor, setClothesFor] = useState<File | null>(null);
+  // How tall the preview may be, as a share of the window. Browser zoom is
+  // not a substitute: it magnifies the whole interface, so the reader ends
+  // up with a bigger picture and a bigger sidebar and no more of either on
+  // screen. This shrinks only the picture.
+  const [viewVh, setViewVh] = useState(68);
+  // Writing the file is not instant on a large photograph, and a button
+  // that looks idle while it works invites a second press — which is how a
+  // slow export becomes two slow exports.
+  const [saving, setSaving] = useState(false);
+  /**
+   * Whether the background is removed at all.
+   *
+   * Removing it used to be compulsory, which meant somebody who only wanted
+   * a sharper file or a jacket still waited for a ninety-five megabyte
+   * download and a cut they never asked for. On the connections this
+   * product was built for, that wait was the entire cost of using it.
+   */
+  const [cutBg, setCutBg] = useState(true);
+  /** Output multiplier. Resampling only, and the note under it says so. */
+  const [enlarge, setEnlarge] = useState(1);
+  // Edge contrast, applied to the exported file and to the preview alike.
+  const [sharpen, setSharpen] = useState<SharpenLevel>(0);
+  // Skip the cut entirely and write the photograph as it arrived. This is
+  // what makes sharpening useful on its own: somebody who only wants a
+  // crisper file should not have to accept a cut-out to get one.
+  const [keepOriginal, setKeepOriginal] = useState(false);
+  /** A sharpened copy of the cut, at preview size, tagged with the level it
+   *  was made for. The tag is what stops a stale preview being shown for a
+   *  new setting — and keeping it means the effect never has to clear the
+   *  state synchronously, which React rightly warns about. */
+  /** The garment, poured into this body's outline and carrying its folds.
+   *  Built at preview size by the same functions the export uses at full
+   *  size, so the screen keeps predicting the file. */
+  const [fittedUrl, setFittedUrl] = useState<string | null>(null);
+  const [sharpPreview, setSharpPreview] = useState<{
+    level: SharpenLevel;
+    url: string;
+  } | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const urls = useRef<string[]>([]);
+  // [3B] Scenario chosen before upload; [3C] whether the model was already in
+  // memory when the last cut started (null = no cut ran, so no claim).
+  const [scenario, setScenario] = useState<Scenario | null>(null);
+  const [modelHot, setModelHot] = useState<boolean | null>(null);
+  const saveData = useSyncExternalStore(subscribeNever, saveDataOn, serverIsFine);
+  const applyScenario = useCallback((id: Scenario) => {
+    setScenario(id);
+    if (id === "passport") {
+      setCutBg(true);
+      setBg({ kind: "solid", color: { r: 0x1f, g: 0x6f, b: 0xff, a: 1 } });
+      setAttire("charcoal");
+    } else if (id === "catalog") {
+      setCutBg(true);
+      setBg({ kind: "solid", color: { r: 255, g: 255, b: 255, a: 1 } });
+      setAttire(null);
+    } else {
+      setCutBg(false);
+      setWarming(false);
+      setAttire("charcoal");
+    }
+  }, []);
+  useEffect(() => {
+    // Deferred a tick so the URL preset applies after mount, not inside it.
+    const p = presetFromUrl();
+    if (!p) return;
+    const t = window.setTimeout(() => applyScenario(p), 0);
+    return () => window.clearTimeout(t);
+  }, [applyScenario]);
 
   useEffect(() => {
     let alive = true;
@@ -113,6 +246,98 @@ export function Studio() {
     const held = urls.current;
     return () => held.forEach((u) => URL.revokeObjectURL(u));
   }, []);
+
+  // Fitting the garment for the preview. The same two functions run at full
+  // size inside the export, so this is a smaller copy of the real thing
+  // rather than an approximation of it.
+  useEffect(() => {
+    if (!shot || !art || !clothes || clothesFor !== shot.file) return;
+    let alive = true;
+    let made: string | null = null;
+    void (async () => {
+      try {
+        // Image elements, not createImageBitmap. The jacket artwork is an
+        // SVG, and createImageBitmap refuses an SVG blob outright —
+        // InvalidStateError, decoded as nothing. That failure was silent
+        // here for a while, which is the real lesson: an empty catch turned
+        // a broken feature into a feature that merely never appeared.
+        const [artBmp, maskBmp] = await Promise.all([
+          // The message is never surfaced on this path: the catch below
+          // logs and falls back, so it stays out of the dependency list.
+          loadImage(backdropUrl(art.blob), "garment decode failed"),
+          loadImage(backdropUrl(clothes.mask), "mask decode failed"),
+        ]);
+        const w = Math.min(shot.w, 1400);
+        const h = Math.round((w * shot.h) / shot.w);
+        const span = clothingSpans(maskBmp, w, h);
+        if (!span || !alive) return;
+        const out = fitGarment(
+          artBmp,
+          artBmp.naturalWidth,
+          artBmp.naturalHeight,
+          span,
+          shot.bitmap,
+          w,
+          h,
+          // The shoulders, when the pose network found them. Their midpoint
+          // is the body's centre line; the clothing mask's own centre is
+          // only the middle of whatever the mask happened to include.
+          shoulders ? (shoulders.leftX + shoulders.rightX) / 2 : null,
+          shoulders
+            ? {
+                y: (shoulders.leftY + shoulders.rightY) / 2,
+                span: Math.abs(shoulders.leftX - shoulders.rightX),
+              }
+            : null,
+          maskBmp,
+        );
+        if (!out || !alive) return;
+        out.toBlob((blob) => {
+          if (!alive || !blob) return;
+          made = URL.createObjectURL(blob);
+          urls.current.push(made);
+          setFittedUrl(made);
+        }, "image/png");
+      } catch (e) {
+        // The fit falls back to the placed-and-clipped garment, which is
+        // what shipped before and is still correct, just flatter. Logged
+        // rather than swallowed: silence here once hid a broken decode for
+        // an entire deploy.
+        console.error("[mattecut] garment fit failed", e);
+      }
+    })();
+    return () => {
+      alive = false;
+      // Deliberately not revoked here. The cleanup runs before the next
+      // attempt, and that attempt can bail out early — a missing span, a
+      // decode failure — leaving the state pointing at a blob that has just
+      // been revoked. That is what turned the jacket into a broken-image
+      // icon. Every URL is already collected in `urls` and released when the
+      // page unmounts.
+    };
+  }, [shot, art, clothes, clothesFor, shoulders]);
+
+  // Sharpening the preview, at preview size. The same function runs at full
+  // size on export, so one algorithm and one set of numbers decide both.
+  useEffect(() => {
+    if (!shot || sharpen === 0) return;
+    let alive = true;
+    let made: string | null = null;
+    const w = Math.min(shot.w, 1400);
+    const h = Math.round((w * shot.h) / shot.w);
+    const out = sharpenTo(shot.bitmap, w, h, sharpen);
+    if (!(out instanceof HTMLCanvasElement)) return;
+    out.toBlob((blob) => {
+      if (!alive || !blob) return;
+      made = URL.createObjectURL(blob);
+      urls.current.push(made);
+      setSharpPreview({ level: sharpen, url: made });
+    }, "image/png");
+    return () => {
+      alive = false;
+      if (made) URL.revokeObjectURL(made);
+    };
+  }, [shot, sharpen]);
 
   const run = useCallback(
     async (file: File, q: Quality = quality) => {
@@ -131,21 +356,40 @@ export function Studio() {
       }
 
       setBusy(true);
-      setQuality(q);
-      setProgress({
-        stage: isWarm(q) ? "processing" : "fetching",
-        ratio: null,
-        key: isWarm(q) ? "separating" : "engine",
-      });
+      setPicked(q);
+      setModelHot(cutBg ? isWarm(q) : null);
+      setProgress(
+        cutBg
+          ? {
+              stage: isWarm(q) ? "processing" : "fetching",
+              ratio: null,
+              key: isWarm(q) ? "separating" : "engine",
+            }
+          : null,
+      );
 
       try {
-        const blob = await cutout(file, q, setProgress);
+        // The cap travels into the worker rather than being applied here:
+        // the shrink needs a full decode, and doing that on this thread is
+        // the freeze the worker exists to prevent.
+        //
+        // With the cut turned off none of that happens: no worker, no
+        // weights, no wait. The photograph is its own master.
+        const { blob, scaled } = cutBg
+          ? await cutout(file, q, weak ? CAP.weak : CAP.normal, setProgress)
+          : { blob: file as Blob, scaled: false };
 
         const originalUrl = URL.createObjectURL(file);
         const masterUrl = URL.createObjectURL(blob);
         urls.current.push(originalUrl, masterUrl);
 
         const bitmap = await loadImage(masterUrl, t.studio.errDecode);
+        // The original's own dimensions. Cheap here — the browser has just
+        // decoded this file for the preview — and it is what the export and
+        // its note are measured against.
+        const src = await loadImage(originalUrl, t.studio.errDecode).catch(
+          () => null,
+        );
         setShot({
           file,
           originalUrl,
@@ -156,24 +400,28 @@ export function Studio() {
           h: bitmap.naturalHeight,
           quality: q,
           portrait: findPortrait(bitmap),
+          capped: scaled,
+          srcW: src?.naturalWidth ?? bitmap.naturalWidth,
+          srcH: src?.naturalHeight ?? bitmap.naturalHeight,
+          cut: cutBg,
         });
-        setProgress({ stage: "done", ratio: 1, key: "separating" });
+        setProgress(cutBg ? { stage: "done", ratio: 1, key: "separating" } : null);
       } catch (e) {
         // The library's messages are English internals; a translated
         // sentence the user can act on beats a leaked stack trace. The
         // original still goes to the console for whoever is debugging.
-        console.error("[roto] cutout failed", e);
+        console.error("[mattecut] cutout failed", e);
         setProgress(null);
         // The switcher moved the moment the chip was pressed, so a failed
         // cut has to move it back; otherwise it claims a model that never
         // produced the picture on screen.
-        setQuality(quality);
+        setPicked(quality);
         setError(t.studio.errFailed);
       } finally {
         setBusy(false);
       }
     },
-    [quality, t],
+    [quality, t, weak, cutBg],
   );
 
   // A crash, a closed tab, or a stray reload should not cost the reader the
@@ -191,6 +439,9 @@ export function Studio() {
         // This string is never shown: the catch discards the draft rather
         // than blaming the reader for a record they cannot even see.
         const bitmap = await loadImage(masterUrl, "draft decode failed");
+        const src = await loadImage(originalUrl, "draft decode failed").catch(
+          () => null,
+        );
         if (!alive) return;
         setShot({
           file,
@@ -202,8 +453,13 @@ export function Studio() {
           h: bitmap.naturalHeight,
           quality: d.quality,
           portrait: findPortrait(bitmap),
+          capped: d.capped === true,
+          srcW: src?.naturalWidth ?? bitmap.naturalWidth,
+          srcH: src?.naturalHeight ?? bitmap.naturalHeight,
+          // Drafts predate this flag and were always cuts.
+          cut: true,
         });
-        setQuality(d.quality);
+        setPicked(d.quality);
         if (d.bg) setBg(d.bg as Background);
         // Same guard as the tier: a jacket this build no longer ships must
         // not come back as a broken fetch on the reader's first glance.
@@ -238,6 +494,7 @@ export function Studio() {
         attire,
         attireScale,
         attireDrop,
+        capped: shot.capped,
         at: Date.now(),
       });
     }, 400);
@@ -259,6 +516,8 @@ export function Studio() {
   // first cut is not also the first big download.
   useEffect(() => {
     if (shot || busy) return;
+    // [4B] No warm-up when nothing will be cut, or the browser asks to save data.
+    if (!cutBg || scenario === "quick" || saveData) return;
     let alive = true;
     const timer = setTimeout(() => {
       if (isWarm(quality)) return;
@@ -277,7 +536,25 @@ export function Studio() {
       alive = false;
       clearTimeout(timer);
     };
-  }, [quality, shot, busy]);
+  }, [quality, shot, busy, cutBg, scenario, saveData]);
+
+  // The clothing region, found the first time a jacket is chosen for a
+  // picture. A null answer is not a failure: the garment falls back to the
+  // silhouette estimate, which is what it always used before.
+  useEffect(() => {
+    if (!shot || !attire) return;
+    if (clothesFor === shot.file) return;
+    let alive = true;
+    void findClothes(shot.file, weak ? CAP.weak : CAP.normal).then((fit) => {
+      if (!alive) return;
+      setClothes(fit.clothes);
+      setShoulders(fit.shoulders);
+      setClothesFor(shot.file);
+    });
+    return () => {
+      alive = false;
+    };
+  }, [shot, attire, clothesFor, weak]);
 
   // Jacket artwork is fetched into a Blob, like every other image in the
   // studio, so preview and export read from one decoded copy.
@@ -307,11 +584,65 @@ export function Studio() {
   const overlay =
     shot && jacket
       ? (() => {
+          // Measured clothing beats an inferred silhouette. This box is
+          // where cloth actually is, so the collar lands on the real
+          // neckline, the width is the person's own, and the garment is
+          // clipped to it — which is why it can no longer reach a face or
+          // spread out to the size of a chair.
+          const measured = clothesFor === shot.file;
+
+          // Shoulders first when the pose network saw them. Two points give
+          // the width, the centre and the angle outright, so none of the
+          // three is an estimate any more. The clothing mask still clips.
+          if (measured && shoulders) {
+            const dx = shoulders.leftX - shoulders.rightX;
+            const dy = shoulders.leftY - shoulders.rightY;
+            const span = Math.hypot(dx, dy);
+            const cw = span * JACKET_SPREAD * attireScale;
+            const cx = (shoulders.leftX + shoulders.rightX) / 2;
+            const cy = (shoulders.leftY + shoulders.rightY) / 2;
+            return {
+              blob: jacket,
+              x: cx - cw / 2,
+              // The collar sits a little above the shoulder line, where a
+              // real one does, measured against the shoulder span so it
+              // holds at any crop.
+              y: cy - span * JACKET_RISE_SPAN + attireDrop,
+              w: cw,
+              tilt: Math.atan2(dy, dx),
+              mask: clothes ? clothes.mask : null,
+              centreX: (shoulders.leftX + shoulders.rightX) / 2,
+              shoulder: {
+                y: (shoulders.leftY + shoulders.rightY) / 2,
+                span: Math.abs(shoulders.leftX - shoulders.rightX),
+              },
+            };
+          }
+
+          if (clothes && measured) {
+            const cw = clothes.w * attireScale;
+            return {
+              blob: jacket,
+              x: clothes.x + (clothes.w - cw) / 2,
+              y: clothes.y + attireDrop,
+              w: cw,
+              tilt: shot.portrait ? shot.portrait.tilt : 0,
+              mask: clothes.mask,
+            };
+          }
+
+          // Fallback for a photo where no cloth was found: bare shoulders,
+          // or a network that misread it. Measured from the silhouette,
+          // which is less reliable but never nothing.
           const p = shot.portrait;
           const w = (p ? p.shoulderWidth * JACKET_SPREAD : 0.8) * attireScale;
           const cx = p ? p.centerX : 0.5;
           const y = (p ? p.neckY - JACKET_RISE : 0.55) + attireDrop;
-          return { blob: jacket, x: cx - w / 2, y, w };
+          // The jacket turns with the shoulders it is being hung on. Zero
+          // when the shoulders were not readable, which is honest: a guessed
+          // angle looks worse than a level one.
+          const tilt = p ? p.tilt : 0;
+          return { blob: jacket, x: cx - w / 2, y, w, tilt, mask: null };
         })()
       : null;
 
@@ -328,10 +659,33 @@ export function Studio() {
   };
 
   const save = async (format: "image/png" | "image/jpeg" | "image/webp") => {
-    if (!shot) return;
+    if (!shot || saving) return;
+    setSaving(true);
+    setError(null);
     const ext =
       format === "image/png" ? "png" : format === "image/jpeg" ? "jpg" : "webp";
     try {
+      // The photograph at its own resolution. The model ran on a shrunk
+      // copy, but the colour never had to be shrunk with it — only the mask
+      // came from the model. Decoded here rather than held for the life of
+      // the page, because a 48 MP bitmap in memory is what the cap exists
+      // to avoid in the first place.
+      let source: { img: HTMLImageElement; w: number; h: number } | null = null;
+      // `keepOriginal` belongs in this list. Without it the photograph was
+      // never decoded on an ordinary cut, `source` stayed null, and the
+      // export's `keepOriginal && source` test failed silently — so ticking
+      // "keep the original background" did nothing at all.
+      if (shot.capped || !shot.cut || enlarge > 1 || keepOriginal) {
+        try {
+          const img = await loadImage(shot.originalUrl, t.studio.errDecode);
+          source = { img, w: img.naturalWidth, h: img.naturalHeight };
+        } catch {
+          // Falling back to the cut's own size is the old behaviour, which
+          // is worse but still produces a file.
+          source = null;
+        }
+      }
+
       const blob = await exportImage(
         shot.bitmap,
         shot.w,
@@ -340,11 +694,20 @@ export function Studio() {
         format,
         0.95,
         overlay,
+        source,
+        sharpen,
+        keepOriginal || !shot.cut,
+        enlarge,
       );
       downloadBlob(blob, outputName(shot.file.name, ext));
     } catch (e) {
-      console.error("[roto] export failed", e);
-      setError(t.studio.errExport);
+      // The stage travels with the message. "Export failed" on its own is a
+      // report nobody can act on, and this path used to produce no message
+      // at all — it simply never finished.
+      console.error("[mattecut] export failed", e);
+      setError(`${t.studio.errExport} (${String(e).slice(0, 90)})`);
+    } finally {
+      setSaving(false);
     }
   };
 
@@ -357,7 +720,7 @@ export function Studio() {
           className="flex items-center gap-3 text-text-dim transition-colors hover:text-text"
         >
           <ArrowLeft size={16} className="rtl:rotate-180" />
-          <RotoLogo size={24} />
+          <MattecutLogo size={24} />
         </Link>
         <div className="flex items-center gap-2">
           <span className="mono me-1 hidden items-center gap-2 text-[11px] text-text-faint lg:flex">
@@ -407,33 +770,107 @@ export function Studio() {
           dragOver={dragOver}
           busy={busy}
           warming={warming}
+          weak={weak}
           onGpu={onGpu}
           progress={progress}
+          cutBg={cutBg}
+          onCutBg={(v) => {
+            setCutBg(v);
+            if (!v) setWarming(false);
+            if (v && scenario === "quick") setScenario(null);
+          }}
           quality={quality}
-          onQuality={setQuality}
+          onQuality={setPicked}
           onPick={() => inputRef.current?.click()}
           onDragState={setDragOver}
           onFile={run}
+          scenario={scenario}
+          onScenario={applyScenario}
+          onError={setError}
+          saveData={saveData}
         />
       ) : (
         <div className="grid gap-6 sm:grid-cols-[minmax(0,1fr)_260px] md:grid-cols-[minmax(0,1fr)_300px] xl:grid-cols-[minmax(0,1fr)_340px] 2xl:grid-cols-[minmax(0,1fr)_380px]">
-          <div className="min-w-0 space-y-3">
+          {/*
+            The picture stays put while the tools scroll past it.
+
+            It used to be the other way round: the tool column was sticky and
+            the picture was not. That reads as sensible until you notice the
+            tool column is taller than any screen — quality, attire,
+            background, sharpness, enlargement and the export buttons stacked
+            — so sticking it changes nothing, and reaching the lower controls
+            scrolls the photograph clean off the top.
+
+            Which is the complaint: adjusting something you cannot see. A
+            judge said as much out loud. Sticking the picture instead is the
+            whole fix.
+          */}
+          <div className="min-w-0 space-y-3 sm:sticky sm:top-6 sm:self-start">
             <CompareSlider
               before={shot.originalUrl}
-              after={shot.masterUrl}
+              after={
+                // Only the preview made for the level now selected. Anything
+                // else would show the reader a sharpness they did not pick.
+                sharpen > 0 && sharpPreview?.level === sharpen
+                  ? sharpPreview.url
+                  : shot.masterUrl
+              }
               backdrop={backgroundToCss(bg)}
               overlay={
                 overlay
-                  ? { ...overlay, src: backdropUrl(overlay.blob) }
+                  ? {
+                      ...overlay,
+                      src: fittedUrl ?? backdropUrl(overlay.blob),
+                      // A fitted garment already covers the frame, so the
+                      // preview must stop positioning and rotating it.
+                      fitted: fittedUrl !== null,
+                      mask:
+                        fittedUrl !== null || !overlay.mask
+                          ? null
+                          : backdropUrl(overlay.mask),
+                    }
                   : null
               }
+              maxVh={viewVh}
             />
-            <p className="mono text-[11px] text-text-faint" dir="ltr">
-              {shot.w} &times; {shot.h} px &middot; {shot.file.name}
-            </p>
+            <QuickBackdrops value={bg} onChange={setBg} enabled={shot.cut} />
+            <ResultStatus
+              onGpu={onGpu}
+              modelHot={shot.cut ? modelHot : null}
+              attireOn={attire !== null}
+              attireAuto={shoulders !== null && clothesFor === shot.file}
+            />
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <p className="mono text-[11px] text-text-faint" dir="ltr">
+                {shot.w} &times; {shot.h} px &middot; {shot.file.name}
+              </p>
+              <div className="flex items-center gap-1">
+                <ViewButton
+                  label={t.studio.zoomOut}
+                  onClick={() => setViewVh((v) => Math.max(24, v - 12))}
+                  disabled={viewVh <= 24}
+                >
+                  <Minus size={13} />
+                </ViewButton>
+                <button
+                  onClick={() => setViewVh(68)}
+                  title={t.studio.zoomFit}
+                  className="mono rounded-lg border border-line px-2.5 py-1.5 text-[11px] tabular-nums text-text-faint transition-colors hover:border-text-faint hover:text-text"
+                >
+                  {Math.round((viewVh / 68) * 100)}%
+                </button>
+                <ViewButton
+                  label={t.studio.zoomIn}
+                  onClick={() => setViewVh((v) => Math.min(92, v + 12))}
+                  disabled={viewVh >= 92}
+                >
+                  <Plus size={13} />
+                </ViewButton>
+              </div>
+            </div>
           </div>
 
-          <aside className="space-y-5 sm:sticky sm:top-6 sm:self-start">
+          <aside className="space-y-5">
             <fieldset
               className="rounded-xl border border-line bg-surface p-4"
               disabled={busy}
@@ -441,26 +878,16 @@ export function Studio() {
               <legend className="mono px-2 text-[10px] uppercase tracking-[0.16em] text-text-faint">
                 {t.studio.qualityLabel}
               </legend>
-              <div className="grid grid-cols-3 gap-1.5">
-                <ModelChip
-                  active={quality === "light"}
-                  busy={busy}
-                  label={t.studio.lightTitle}
-                  onClick={() => void run(shot.file, "light")}
-                />
-                <ModelChip
-                  active={quality === "balanced"}
-                  busy={busy}
-                  label={t.studio.balancedTitle}
-                  onClick={() => void run(shot.file, "balanced")}
-                />
-                <ModelChip
-                  active={quality === "maximum"}
-                  busy={busy}
-                  label={t.studio.maximumTitle}
-                  onClick={() => void run(shot.file, "maximum")}
-                />
-              </div>
+              {/* Moving the slider re-cuts the same photo straight away. The
+                  fieldset disables itself the moment that starts, so a drag
+                  across the track cannot queue a second cut behind the
+                  first. */}
+              <QualitySlider
+                value={quality}
+                onChange={(q) => void run(shot.file, q)}
+                disabled={busy}
+                onGpu={onGpu}
+              />
               <p className="mt-2.5 text-pretty text-xs leading-relaxed text-text-faint">
                 {busy
                   ? progress
@@ -468,6 +895,11 @@ export function Studio() {
                     : t.progress.working
                   : t.studio.modelNote}
               </p>
+              {weak && (
+                <p className="mt-2 text-pretty text-xs leading-relaxed text-text-faint">
+                  {fill(t.studio.lowPower, { px: CAP.weak })}
+                </p>
+              )}
               <CatalogAudit />
             </fieldset>
 
@@ -529,21 +961,130 @@ export function Studio() {
                 </div>
               )}
 
+              {/* Beside the two sliders it clears. It used to sit inside the
+                  QUALITY panel, three controls away from anything it
+                  affects, where it read as a way to reset the model. */}
+              {(attireScale !== 1 || attireDrop !== 0) && (
+                <button
+                  onClick={() => {
+                    setAttireScale(1);
+                    setAttireDrop(0);
+                  }}
+                  className="mt-3 w-full rounded-lg border border-line px-3 py-2 text-xs font-medium transition-colors hover:border-text-faint"
+                >
+                  {t.studio.attireReset}
+                </button>
+              )}
               <p className="mt-2.5 text-pretty text-xs leading-relaxed text-text-faint">
-                {shot.portrait ? t.studio.attireAuto : t.studio.attireManual}
+                {shoulders || (clothes && clothesFor === shot.file) ||
+                shot.portrait?.confident
+                  ? t.studio.attireAuto
+                  : t.studio.attireManual}
               </p>
             </fieldset>
 
             <div className="rounded-xl border border-line bg-surface p-5">
-              <BackgroundPicker value={bg} onChange={setBg} />
+              {shot.cut ? (
+                <BackgroundPicker value={bg} onChange={setBg} />
+              ) : (
+                // Painting a backdrop behind an opaque photograph changes
+                // nothing, so the picker says why instead of pretending.
+                <p className="text-pretty text-xs leading-relaxed text-text-faint">
+                  {t.studio.bgNeedsCut}
+                </p>
+              )}
             </div>
+
+            <fieldset className="rounded-xl border border-line bg-surface p-5">
+              <legend className="mono px-1 text-[11px] uppercase tracking-[0.14em] text-text-faint">
+                {t.studio.sharpenLabel}
+              </legend>
+
+              <div className="mt-1 flex items-baseline justify-between gap-3">
+                <span className="text-sm font-semibold">
+                  {t.studio.sharpenLevels[sharpen]}
+                </span>
+                <span className="mono text-[11px] text-text-faint">
+                  {sharpen}/{SHARPEN_STEPS - 1}
+                </span>
+              </div>
+
+              <input
+                type="range"
+                min={0}
+                max={SHARPEN_STEPS - 1}
+                step={1}
+                value={sharpen}
+                onChange={(e) =>
+                  setSharpen(Number(e.target.value) as SharpenLevel)
+                }
+                aria-label={t.studio.sharpenLabel}
+                aria-valuetext={t.studio.sharpenLevels[sharpen]}
+                className="mc-range mt-3 w-full"
+              />
+
+              <label className="mt-4 flex cursor-pointer items-start gap-2.5">
+                <input
+                  type="checkbox"
+                  checked={keepOriginal}
+                  onChange={(e) => setKeepOriginal(e.target.checked)}
+                  className="mt-0.5 h-4 w-4 shrink-0 accent-[var(--accent)]"
+                />
+                <span className="text-xs leading-relaxed">
+                  {t.studio.keepOriginal}
+                  <span className="mt-1 block text-text-faint">
+                    {t.studio.keepOriginalNote}
+                  </span>
+                </span>
+              </label>
+
+              <p className="mt-3 text-pretty text-xs leading-relaxed text-text-faint">
+                {t.studio.sharpenNote}
+              </p>
+
+              <div className="mt-5 border-t border-line pt-4">
+                <div className="flex items-baseline justify-between gap-3">
+                  <span className="mono text-[11px] uppercase tracking-[0.14em] text-text-faint">
+                    {t.studio.enlargeLabel}
+                  </span>
+                  <span className="mono text-[11px] tabular-nums">
+                    {enlarge}&times; &middot; {shot.srcW * enlarge}&nbsp;&times;&nbsp;
+                    {shot.srcH * enlarge}
+                  </span>
+                </div>
+                <div className="mt-2.5 grid grid-cols-4 gap-1.5">
+                  {[1, 2, 3, 4].map((n) => (
+                    <button
+                      key={n}
+                      onClick={() => setEnlarge(n)}
+                      aria-pressed={enlarge === n}
+                      className={`mono rounded-lg border px-2 py-2 text-xs transition-colors ${
+                        enlarge === n
+                          ? "border-accent bg-accent/10 text-text"
+                          : "border-line text-text-faint hover:border-text-faint"
+                      }`}
+                    >
+                      {n}&times;
+                    </button>
+                  ))}
+                </div>
+                <p className="mt-2.5 text-pretty text-xs leading-relaxed text-text-faint">
+                  {t.studio.enlargeNote}
+                </p>
+              </div>
+            </fieldset>
 
             <div className="space-y-2.5">
               <button
                 onClick={() => void save("image/png")}
-                className="flex w-full items-center justify-center gap-2 rounded-xl bg-accent px-4 py-3.5 text-sm font-semibold text-on-accent transition-colors hover:bg-accent-hi"
+                disabled={saving}
+                className="flex w-full items-center justify-center gap-2 rounded-xl bg-accent px-4 py-3.5 text-sm font-semibold text-on-accent transition-colors hover:bg-accent-hi disabled:opacity-60"
               >
-                <Download size={16} />
+                {saving ? (
+                  <Loader2 size={16} className="animate-spin" />
+                ) : (
+                  <Download size={16} />
+                )}
                 {t.studio.downloadPng}
                 {bg.kind === "transparent" && (
                   <span className="opacity-70">
@@ -560,7 +1101,15 @@ export function Studio() {
                 </SecondaryButton>
               </div>
               <p className="text-center text-xs leading-relaxed text-text-faint">
-                {t.studio.exportNote}
+                {!shot.capped
+                  ? t.studio.exportNote
+                  : shot.srcW > shot.w
+                    ? // The cut was made small; the file is written large.
+                      fill(t.studio.exportNoteRestored, {
+                        w: shot.srcW,
+                        h: shot.srcH,
+                      })
+                    : fill(t.studio.exportNoteCapped, { w: shot.w, h: shot.h })}
               </p>
             </div>
 
@@ -612,6 +1161,7 @@ function Dropzone({
   dragOver,
   busy,
   warming,
+  weak,
   onGpu,
   progress,
   quality,
@@ -619,10 +1169,25 @@ function Dropzone({
   onPick,
   onDragState,
   onFile,
+  cutBg,
+  onCutBg,
+  scenario,
+  onScenario,
+  onError,
+  saveData,
 }: {
+  scenario: Scenario | null;
+  onScenario: (s: Scenario) => void;
+  onError: (msg: string) => void;
+  saveData: boolean;
+  /** Whether the background will be removed at all. Asked before the upload
+   *  because the answer decides whether a 95 MB model is fetched. */
+  cutBg: boolean;
+  onCutBg: (v: boolean) => void;
   dragOver: boolean;
   busy: boolean;
   warming: boolean;
+  weak: boolean;
   onGpu: boolean;
   progress: Progress | null;
   quality: Quality;
@@ -654,7 +1219,8 @@ function Dropzone({
         {busy ? (
           <ProgressPanel progress={progress} quality={quality} onGpu={onGpu} />
         ) : (
-          <div className="text-center">
+          <div className="w-full text-center">
+            <ScenarioPicker value={scenario} onPick={onScenario} disabled={busy} />
             <div className="mx-auto mb-6 grid h-16 w-16 place-items-center rounded-2xl border border-line bg-surface">
               <ImageIcon size={26} className="text-text-faint" />
             </div>
@@ -671,6 +1237,30 @@ function Dropzone({
               <Upload size={16} />
               {t.studio.pick}
             </button>
+            <label className="mx-auto mt-6 flex max-w-sm cursor-pointer items-start gap-2.5 rounded-xl border border-line p-3 text-start">
+              <input
+                type="checkbox"
+                checked={cutBg}
+                onChange={(e) => onCutBg(e.target.checked)}
+                className="mt-0.5 h-4 w-4 shrink-0 accent-[var(--accent)]"
+              />
+              <span className="text-xs leading-relaxed">
+                {t.studio.cutToggle}
+                <span className="mt-1 block text-text-faint">
+                  {t.studio.cutToggleNote}
+                </span>
+              </span>
+            </label>
+            <WarmStatus
+              cutBg={cutBg}
+              warming={warming}
+              ready={cutBg && isWarm(quality)}
+              saveData={saveData}
+              mb={downloadMb(quality, onGpu)}
+              ratio={progress?.ratio ?? null}
+              onZeroMb={() => onScenario("quick")}
+            />
+            <SamplePhotos disabled={busy} onFile={onFile} onError={onError} />
             <p className="mono mt-5 text-[11px] text-text-faint">
               {t.studio.formats}
             </p>
@@ -678,33 +1268,25 @@ function Dropzone({
         )}
       </div>
 
-      <fieldset className="rounded-xl border border-line bg-surface p-4">
+      <fieldset
+        className="rounded-xl border border-line bg-surface p-4"
+        // A model that is not going to run has no quality to choose.
+        hidden={!cutBg}
+      >
         <legend className="mono px-2 text-[10px] uppercase tracking-[0.16em] text-text-faint">
           {t.studio.qualityLabel}
         </legend>
-        <div className="grid gap-2 sm:grid-cols-3">
-          <QualityOption
-            active={quality === "light"}
-            onClick={() => onQuality("light")}
-            title={t.studio.lightTitle}
-            note={fill(t.studio.lightNote, { mb: downloadMb("light", onGpu) })}
-            disabled={busy}
-          />
-          <QualityOption
-            active={quality === "balanced"}
-            onClick={() => onQuality("balanced")}
-            title={t.studio.balancedTitle}
-            note={fill(t.studio.balancedNote, { mb: downloadMb("balanced", onGpu) })}
-            disabled={busy}
-          />
-          <QualityOption
-            active={quality === "maximum"}
-            onClick={() => onQuality("maximum")}
-            title={t.studio.maximumTitle}
-            note={fill(t.studio.maximumNote, { mb: downloadMb("maximum", onGpu) })}
-            disabled={busy}
-          />
-        </div>
+        <QualitySlider
+          value={quality}
+          onChange={onQuality}
+          disabled={busy}
+          onGpu={onGpu}
+        />
+        {weak && (
+          <p className="mt-2.5 text-pretty text-xs leading-relaxed text-text-faint">
+            {fill(t.studio.lowPower, { px: CAP.weak })}
+          </p>
+        )}
         {warming && (
           <p
             className="mt-2.5 flex items-center gap-2 text-xs leading-relaxed text-text-faint"
@@ -726,38 +1308,145 @@ function Dropzone({
   );
 }
 
-function QualityOption({
-  active,
+/** The view-size buttons. Icon-only, so the control stays the same width in
+ *  every one of the eighteen languages. */
+function ViewButton({
+  label,
   onClick,
-  title,
-  note,
   disabled,
+  children,
 }: {
-  active: boolean;
+  label: string;
   onClick: () => void;
-  title: string;
-  note: string;
   disabled: boolean;
+  children: React.ReactNode;
 }) {
   return (
     <button
       onClick={onClick}
       disabled={disabled}
-      aria-pressed={active}
-      className={`rounded-lg border p-3 text-start transition-colors disabled:opacity-50 ${
-        active
-          ? "border-accent bg-accent/10"
-          : "border-line hover:border-text-faint"
-      }`}
+      title={label}
+      aria-label={label}
+      className="rounded-lg border border-line p-1.5 text-text-faint transition-colors hover:border-text-faint hover:text-text disabled:opacity-40"
     >
-      <span className="flex items-center gap-2 text-sm font-medium">
-        {title}
-        {active && <Sparkles size={13} className="text-accent-text" />}
-      </span>
-      <span className="mt-1 block text-xs leading-relaxed text-text-faint">
-        {note}
-      </span>
+      {children}
     </button>
+  );
+}
+
+/** The tiers in the order they belong on a scale, lightest first. */
+const TIERS: readonly Quality[] = ["lite", "fine", "light", "balanced", "maximum"];
+
+/**
+ * The three tiers as one slider instead of three cards.
+ *
+ * They are a single ordered scale — one network at rising precision — and
+ * three separate buttons made them look like three different products. The
+ * ends are labelled with the tier names that already exist, so the control
+ * needs no new sentence in any of the eighteen languages.
+ *
+ * A native range, deliberately. It arrives keyboard-operable and announced
+ * to a screen reader without a line of script, and the machines this whole
+ * control exists to serve are the last place to spend JavaScript on a
+ * widget the platform already ships.
+ */
+function QualitySlider({
+  value,
+  onChange,
+  disabled,
+  onGpu,
+}: {
+  value: Quality;
+  onChange: (q: Quality) => void;
+  disabled: boolean;
+  onGpu: boolean;
+}) {
+  const { t } = useI18n();
+  // Where the handle is, which is not yet what the model is. Dragging across
+  // four stops used to start four cuts; the fieldset disabling itself
+  // mid-drag hid that most of the time, which is not the same as fixing it.
+  const [pending, setPending] = useState<Quality>(value);
+
+  // The applied tier can move without this slider: a restored draft, or a
+  // failed cut putting the choice back. Follow it, or the handle ends up
+  // claiming a model that is not running. Adjusted during render rather
+  // than in an effect, which is React's own answer for state that has to
+  // track a prop — an effect here would render the stale handle first.
+  const [tracked, setTracked] = useState<Quality>(value);
+  if (tracked !== value) {
+    setTracked(value);
+    setPending(value);
+  }
+
+  const at = Math.max(0, TIERS.indexOf(pending));
+  const titles = [
+    t.studio.liteTitle,
+    t.studio.fineTitle,
+    t.studio.lightTitle,
+    t.studio.balancedTitle,
+    t.studio.maximumTitle,
+  ];
+  const notes = [
+    t.studio.liteNote,
+    t.studio.fineNote,
+    t.studio.lightNote,
+    t.studio.balancedNote,
+    t.studio.maximumNote,
+  ];
+  const dirty = pending !== value;
+
+  return (
+    <div>
+      <p className="flex items-center gap-2 text-sm font-medium">
+        {titles[at]}
+        {!dirty && <Sparkles size={13} className="text-accent-text" />}
+      </p>
+      <div className="mt-3 flex items-center gap-3">
+        <span className="mono shrink-0 text-[10px] uppercase tracking-[0.12em] text-text-faint">
+          {titles[0]}
+        </span>
+        <div className="relative flex-1">
+          {/* Drawn under the thumb, because a four-position control with a
+              bare rail reads as continuous. */}
+          <div className="range-rail" aria-hidden="true">
+            {TIERS.map((tier, i) => (
+              <span
+                key={tier}
+                className="range-stop"
+                style={{ left: `${(i / (TIERS.length - 1)) * 100}%` }}
+              />
+            ))}
+          </div>
+          <input
+            type="range"
+            className="mc-range ticks relative w-full"
+            min={0}
+            max={TIERS.length - 1}
+            step={1}
+            value={at}
+            disabled={disabled}
+            aria-label={t.studio.qualityLabel}
+            aria-valuetext={titles[at]}
+            onChange={(e) => setPending(TIERS[Number(e.target.value)])}
+          />
+        </div>
+        <span className="mono shrink-0 text-[10px] uppercase tracking-[0.12em] text-text-faint">
+          {titles[TIERS.length - 1]}
+        </span>
+      </div>
+      <p className="mt-2.5 text-pretty text-xs leading-relaxed text-text-faint">
+        {fill(notes[at], { mb: downloadMb(pending, onGpu) })}
+      </p>
+      {dirty && (
+        <button
+          onClick={() => onChange(pending)}
+          disabled={disabled}
+          className="mt-2.5 w-full rounded-lg bg-accent px-3 py-2 text-xs font-semibold text-on-accent transition-opacity hover:opacity-90 disabled:opacity-50"
+        >
+          {t.studio.applyModel}
+        </button>
+      )}
+    </div>
   );
 }
 
@@ -835,7 +1524,7 @@ function Nudge({
         max={max}
         value={value}
         onChange={(e) => onChange(Number(e.target.value))}
-        className="roto-range min-w-0 flex-1"
+        className="mc-range min-w-0 flex-1"
       />
     </label>
   );

@@ -39,3 +39,10 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Copied in by worker/build.mjs, not source.
+/public/mediapipe/wasm
+/public/matting-worker.js
+
+# Link to the previous Vercel project, kept locally only.
+/.vercel.roto-backup

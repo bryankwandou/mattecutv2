@@ -2,7 +2,7 @@ import type { Dict } from "../dict";
 
 export const tr: Dict = {
   meta: {
-    title: "Roto — görselleri yüklemeden arka planını kaldırın",
+    title: "Mattecut — görselleri yüklemeden arka planını kaldırın",
     description:
       "Tarayıcının içinde çalışan bir arka plan kaldırıcı. Görseller hiçbir sunucuya gönderilmez, sıra beklemek yok ve sonuç özgün çözünürlükte indirilir.",
     studioTitle: "Stüdyo",
@@ -28,12 +28,12 @@ export const tr: Dict = {
   },
   lang: { label: "Dil" },
   hero: {
-    badge: "Kendi cihazınızda çalışır",
-    titleA: "Özneyi ayırın.",
-    titleB: "Gerisini atın.",
-    lead: "Roto, görsellerin arka planını doğrudan tarayıcının içinde keser. Dosya cihazınızdan hiç çıkmaz; yani sıra yok, günlük kota yok ve fotoğrafınıza ne olduğu konusunda kimseye güvenmeniz gerekmiyor.",
+    badge: "Edge-AI · Privacy First · Hesapsız",
+    titleA: "Küçük İşletmeler İçin Vesikalık Fotoğraf ve Ürün Katalog Stüdyosu",
+    titleB: "Doğrudan Tarayıcınızda",
+    lead: "Fotoğrafın arka planını kaldırın, resmi bir stüdyo fonuyla değiştirin ya da ürün katalog fotoğrafları hazırlayın, hepsi cihazınızda işlenir. Sunucuya hiçbir şey yüklenmez.",
     cta: "İlk görseli kesin",
-    note: "Hesap yok · yükleme yok · filigran yok",
+    note: "Şimdi Deneyin - Kayıt Gerekmez",
     caption: "Alfa matte · 8 bit",
   },
   pillars: [
@@ -94,8 +94,8 @@ export const tr: Dict = {
     heading: "Denemeden önce bilmekte fayda olanlar",
     items: [
       {
-        title: "İlk seferde 54 MB indirme",
-        body: "Bölütleme modelinin önce tarayıcıya inmesi gerekir. Yalnızca bir kez, sonra saklı kalır. Kotanız kısıtlıysa Wi-Fi ile yapın.",
+        title: "İlk seferde 12–190 MB indirme",
+        body: "Kalite düzeyine göre değişir. Arka plan kaldırma olmadan: 0 MB. Dengeli (varsayılan) yaklaşık 95 MB, tarayıcı WebGPU kullanıyorsa 106 MB; en yüksek 179 MB, WebGPU ile 190 MB. Yalnızca bir kez, sonra saklı kalır. Kotanız kısıtlıysa Wi-Fi ile yapın.",
       },
       {
         title: "Eski cihazlar daha yavaş",
@@ -123,9 +123,16 @@ export const tr: Dict = {
     pick: "Görsel seçin",
     formats: "JPG · PNG · WEBP — en fazla 12 MB",
     qualityLabel: "Kalite",
+    applyModel: "Bu modeli kullan",
+    liteTitle: "Çok hafif",
+    liteNote:
+      "{mb} MB model · en küçük indirme, saçta en kaba sonuç",
+    fineTitle: "Saça duyarlı",
+    fineNote:
+      "{mb} MB model · saçı ayrı bir katman sayar, indirme yine küçük",
     lightTitle: "Hafif",
     lightNote:
-      "{mb} MB model · en hafifi, sınırlı cihaz ve bağlantılar için",
+      "{mb} MB model · küçük indirme, çok hafiften daha keskin kenarlar",
     balancedTitle: "Dengeli",
     balancedNote:
       "{mb} MB model · ortadaki seçim, çoğu fotoğraf için yeterli",
@@ -145,8 +152,34 @@ export const tr: Dict = {
       "Katalog okunamadı — ağ başarısız oldu ya da kaynak reddetti. Yukarıdaki kademelerin boyutları şu anda doğrulanmamış durumda.",
     downloadPng: "PNG indir",
     transparentSuffix: "saydam",
+    cutToggle: "Arka planı kaldır",
+    cutToggleNote:
+      "Yalnızca keskinleştirmek, büyütmek veya ceket eklemek için kapalı bırakın. Model hiç indirilmez.",
+    cutSkipped:
+      "Arka plan korundu. Hiçbir şey kesilmedi.",
+    bgNeedsCut:
+      "Arka planı değiştirmek kesim gerektirir. Kaldırmayı açıp görseli yeniden yükleyin.",
+    enlargeLabel: "Büyüt",
+    enlargeNote:
+      "Daha büyük bir boyuta yeniden örnekler. Kameranın hiç kaydetmediği ayrıntıyı geri getirmez.",
+    sharpenLabel: "Keskinlik",
+    sharpenLevels: ["Kapalı", "Hafif", "Orta", "Güçlü"],
+    sharpenNote:
+      "Kenar kontrastını yalnızca renge ekler, kesim kenarına asla. Kameranın kaydetmediği ayrıntıyı geri getirmez.",
+    keepOriginal: "Orijinal arka planı koru",
+    keepOriginalNote:
+      "Fotoğrafı geldiği gibi dışa aktarır: daha keskin, kesilmemiş.",
     exportNote:
       "Her zaman önizleme boyutunda değil, özgün çözünürlükte dışa aktarılır.",
+    exportNoteCapped:
+      "{w} × {h} px olarak dışa aktarıldı; özgün boyuttan küçük: bu makine tam çözünürlüğü modelden geçiremedi.",
+    exportNoteRestored:
+      "Dosyanızın tam {w} × {h} px ölçüsünde dışa aktarıldı. Model daha küçük bir kopyada çalıştı, bu yüzden yalnızca kesim kenarı daha yumuşak — öznedeki her piksel sizin aslınız.",
+    lowPower:
+      "Bu makine sınırlı bellek veya işlemci çekirdeği bildiriyor; bu yüzden en hafif model öntanımlı seçiliyor ve fotoğraflar işlenmeden önce uzun kenarı {px} px olacak şekilde küçültülüyor. Tüm kademeler yine seçilebilir.",
+    zoomOut: "Küçük göster",
+    zoomIn: "Büyük göster",
+    zoomFit: "Ekrana sığdır",
     another: "Başka görsel",
     restored: "Sekme kapandıktan sonra son sonucunuz geri yüklendi.",
     modelNote: "İstediğiniz zaman model değiştirin; kesim aynı görsel üzerinde yeniden yapılır.",
@@ -161,6 +194,7 @@ export const tr: Dict = {
       "Kesitteki omuz ve boyundan otomatik yerleştirildi.",
     attireManual:
       "Bu fotoğrafta omuzlar okunamadı. Boyutu ve yüksekliği kendin ayarla.",
+    attireReset: "Boyut ve yüksekliği sıfırla",
     attireSize: "Boyut",
     attireDrop: "Yükseklik",
     firstDownloadNote:
@@ -181,7 +215,7 @@ export const tr: Dict = {
   },
   compare: {
     before: "Özgün",
-    after: "Roto",
+    after: "Mattecut",
     sliderLabel: "Öncesi ile sonrasını karşılaştırmak için sürükleyin",
     altBefore: "İşlenmeden önceki özgün görsel",
     altAfter: "Arka plan kaldırıldıktan sonraki sonuç",
@@ -220,6 +254,31 @@ export const tr: Dict = {
     ],
     upload: "Kendi görselin",
     uploadHint: "Dosya bu cihazda kalır",
+    catalogueOpen:
+      "Tüm arka planlara göz at",
+    catalogueTitle:
+      "Arka plan kataloğu",
+    catalogueCount:
+      "{n} arka plan, bu cihazda üretildi — hiçbiri indirilmedi",
+    catalogueByCount:
+      "CC BY kapsamında {n} fotoğraf — serbestçe kullanılır, ama eser sahibi belirtilmeli",
+    catalogueOfflineCount:
+      "{n} fotoğraf uygulamanın içinde — bağlantı olmadan çalışır",
+    catalogueTabOffline: "Çevrimdışı",
+    creditRequired:
+      "Bunu paylaştığınız her yerde belirtilmesi zorunlu: {credit}",
+    cataloguePhotoCount:
+      "{n} fotoğraf, kamu malı veya CC0, bu siteden sunuluyor",
+    catalogueTabGradients: "Renkler",
+    catalogueTabPhotos: "Fotoğraflar",
+    catalogueSearch:
+      "Ara: blue, soft, deep teal, gradient, #1f6fff",
+    catalogueEmpty:
+      "Eşleşen yok. Bir renk adı ya da hex kodu deneyin.",
+    catalogueFailed:
+      "Fotoğraf listesi yüklenemedi. Bağlantıyı kontrol edip yeniden deneyin.",
+    creditShown:
+      "Sonucu paylaştığınız her yerde bu fotoğrafı belirtin: {credit}",
     fitCover: "Doldur",
     fitContain: "Sığdır",
   },

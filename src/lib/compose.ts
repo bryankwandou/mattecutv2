@@ -1,4 +1,6 @@
 import type { Rgba } from "./color";
+import { sharpenTo, type SharpenLevel } from "./sharpen";
+import { clothingSpans, fitGarment } from "./garment";
 import { toCss } from "./color";
 
 /**
@@ -34,7 +36,27 @@ export type Fit = "cover" | "contain";
  * purpose: it follows from the artwork's own aspect, so a CSS `height:auto`
  * and a canvas calculation cannot drift apart.
  */
-export type Overlay = { blob: Blob; x: number; y: number; w: number };
+export type Overlay = {
+  blob: Blob;
+  x: number;
+  y: number;
+  w: number;
+  /** Radians. Turns the garment to sit on the shoulder line rather than on
+   *  the horizon, which is the difference between worn and pasted on. */
+  tilt: number;
+  /** White where the person's own clothing is. When present the garment is
+   *  poured into it row by row, so it follows the shoulders and the taper
+   *  of the body instead of being a rectangle with its corners hidden. */
+  mask?: Blob | null;
+  /** Midpoint between the shoulders, as a fraction of the width. Null when
+   *  the pose network did not find them, in which case the mask's own
+   *  centre is the only estimate available. */
+  centreX?: number | null;
+  /** The shoulder line: how far down the frame, and how far apart the
+   *  joints are. Both fractions. Null when the pose network found nothing,
+   *  in which case the garment falls back to stretching. */
+  shoulder?: { y: number; span: number } | null;
+};
 
 /**
  * Decoded backdrops, keyed by the Blob they came from.
@@ -63,12 +85,50 @@ export function backdropUrl(blob: Blob): string {
  * write a picture with no background at all, which is the worst kind of
  * bug: the file looks fine until someone opens it.
  */
+/**
+ * Decode with a deadline.
+ *
+ * `HTMLImageElement.decode()` is specified to settle, and in practice does
+ * not always: a source that neither finishes nor errors leaves the promise
+ * pending forever. Awaited on the export path that is the worst failure
+ * this product can have — the reader presses Download and receives silence,
+ * with no file, no message and nothing to retry.
+ *
+ * So every decode carries a deadline and every deadline names its stage,
+ * because "export failed" without a stage is a bug report nobody can act
+ * on.
+ */
+export async function decodeWithin(
+  blob: Blob,
+  stage: string,
+  ms = 20_000,
+): Promise<HTMLImageElement> {
+  const held = decoded.get(blob);
+  if (held) return held;
+
+  const img = new Image();
+  img.src = backdropUrl(blob);
+
+  const settled = new Promise<HTMLImageElement>((resolve, reject) => {
+    // Both paths, because decode() and the load events do not always agree
+    // about SVG sources.
+    img.decode().then(() => resolve(img), () => undefined);
+    img.onload = () => resolve(img);
+    img.onerror = () => reject(new Error(`${stage}: could not decode`));
+  });
+
+  const timer = new Promise<never>((_, reject) =>
+    setTimeout(() => reject(new Error(`${stage}: timed out after ${ms}ms`)), ms),
+  );
+
+  const out = await Promise.race([settled, timer]);
+  decoded.set(blob, out);
+  return out;
+}
+
 export async function prepareBackground(bg: Background): Promise<void> {
   if (bg.kind !== "image" || decoded.has(bg.blob)) return;
-  const img = new Image();
-  img.src = backdropUrl(bg.blob);
-  await img.decode();
-  decoded.set(bg.blob, img);
+  await decodeWithin(bg.blob, "backdrop");
 }
 
 /** Where a backdrop lands inside w×h under the chosen fit. */
@@ -95,7 +155,7 @@ export function paintBackground(
     // Undecoded means `prepareBackground` was not awaited. Silence here
     // would ship a transparent export, so say so where a developer sees it.
     if (!img) {
-      console.error("[roto] backdrop painted before decode");
+      console.error("[mattecut] backdrop painted before decode");
       return;
     }
     const { x, y, dw, dh } = frame(img, w, h, bg.fit);
@@ -130,24 +190,87 @@ export function paintOverlay(
   overlay: Overlay,
   w: number,
   h: number,
+  /** The original photograph, used only as a source of shading for the
+   *  fitted garment. Never drawn. */
+  photo: CanvasImageSource | null = null,
 ) {
   const img = decoded.get(overlay.blob);
   if (!img) {
-    console.error("[roto] overlay painted before decode");
+    console.error("[mattecut] overlay painted before decode");
     return;
   }
+  const maskImg = overlay.mask ? decoded.get(overlay.mask) : null;
+
+  // The fitted path. The clothing mask knows where the body starts and ends
+  // on every row, so the artwork is stretched into that outline and the
+  // photograph's own folds are laid over it. What comes back already covers
+  // the frame, so it is drawn at the origin rather than positioned.
+  if (maskImg) {
+    const span = clothingSpans(maskImg, w, h);
+    if (span) {
+      const fitted = fitGarment(
+        img,
+        img.naturalWidth,
+        img.naturalHeight,
+        span,
+        photo ?? null,
+        w,
+        h,
+        overlay.centreX ?? null,
+        overlay.shoulder ?? null,
+        maskImg,
+      );
+      if (fitted) {
+        ctx.drawImage(fitted, 0, 0);
+        return;
+      }
+    }
+  }
+
   const dw = overlay.w * w;
   const dh = (dw * img.naturalHeight) / img.naturalWidth;
-  ctx.drawImage(img, overlay.x * w, overlay.y * h, dw, dh);
+  const x = overlay.x * w;
+  const y = overlay.y * h;
+
+  const place = (c: CanvasRenderingContext2D | OffscreenCanvasRenderingContext2D) => {
+    if (!overlay.tilt) {
+      c.drawImage(img, x, y, dw, dh);
+      return;
+    }
+    // Rotate about the centre of the collar rather than the corner of the
+    // artwork: the collar is the part that has to stay on the neck, and any
+    // other pivot slides it off while turning.
+    c.save();
+    c.translate(x + dw / 2, y);
+    c.rotate(overlay.tilt);
+    c.drawImage(img, -dw / 2, 0, dw, dh);
+    c.restore();
+  };
+
+  if (!maskImg) {
+    place(ctx);
+    return;
+  }
+
+  // Drawn on its own surface first, then cut to the clothing before it is
+  // laid down. Clipping in place would erase the picture underneath it.
+  const layer = new OffscreenCanvas(w, h);
+  const lc = layer.getContext("2d");
+  if (!lc) {
+    place(ctx);
+    return;
+  }
+  place(lc);
+  lc.globalCompositeOperation = "destination-in";
+  lc.drawImage(maskImg, 0, 0, w, h);
+  ctx.drawImage(layer, 0, 0);
 }
 
 /** Decode an overlay, for the same reason `prepareBackground` exists. */
 export async function prepareOverlay(overlay: Overlay | null): Promise<void> {
-  if (!overlay || decoded.has(overlay.blob)) return;
-  const img = new Image();
-  img.src = backdropUrl(overlay.blob);
-  await img.decode();
-  decoded.set(overlay.blob, img);
+  if (!overlay) return;
+  if (overlay.blob) await decodeWithin(overlay.blob, "garment");
+  if (overlay.mask) await decodeWithin(overlay.mask, "clothing mask");
 }
 
 /** Draw subject over background into an existing canvas. */
@@ -172,6 +295,47 @@ export function composite(
  * is transparent; JPEG cannot, so we refuse that combination upstream
  * rather than silently handing back a black-backed image.
  */
+/** Chrome refuses a canvas past roughly this many pixels, and a refusal is a
+ *  blank export rather than an error. Measured in the browser rather than
+ *  taken from a blog post: 16384x16384 allocates, 40960x23040 does not. */
+const MAX_CANVAS_PX = 16384 * 16384;
+
+/**
+ * Restore the original resolution the model could not carry.
+ *
+ * The model runs on a shrunk copy — it has to, or a 48 MP photo exhausts
+ * the tab. The old export then wrote that shrunk copy out, so a 6000 px
+ * source came back at 4096 and a third of the detail was gone for no reason
+ * anybody could defend.
+ *
+ * The reason it was unnecessary: only the *mask* comes from the model. The
+ * colour comes from the photograph, which never left the machine at full
+ * size. So the original is drawn at its own resolution and the cut-out is
+ * used as a stencil over it — `destination-in` keeps the original's pixels
+ * exactly where the cut-out is opaque.
+ *
+ * What that costs is the edge, not the picture: the mask is enlarged, so
+ * the boundary is as soft as the model made it. Every pixel inside the
+ * subject is the photographer's own.
+ */
+function stencil(
+  source: CanvasImageSource,
+  subject: CanvasImageSource,
+  w: number,
+  h: number,
+): HTMLCanvasElement {
+  const c = document.createElement("canvas");
+  c.width = w;
+  c.height = h;
+  const g = c.getContext("2d");
+  if (!g) throw new Error("Canvas 2D tidak tersedia di peramban ini.");
+  g.imageSmoothingQuality = "high";
+  g.drawImage(source, 0, 0, w, h);
+  g.globalCompositeOperation = "destination-in";
+  g.drawImage(subject, 0, 0, w, h);
+  return c;
+}
+
 export async function exportImage(
   subject: CanvasImageSource,
   w: number,
@@ -180,10 +344,43 @@ export async function exportImage(
   format: "image/png" | "image/jpeg" | "image/webp" = "image/png",
   quality = 0.95,
   overlay: Overlay | null = null,
+  /** The photograph as it arrived, at its own resolution. When it is larger
+   *  than the cut-out, the export is made at *its* size. */
+  source: { img: CanvasImageSource; w: number; h: number } | null = null,
+  /** Edge contrast, 0 for none. Applied to colour only — never to the
+   *  matte, which would put a hard rim around a deliberately soft edge. */
+  sharpen: SharpenLevel = 0,
+  /** Write the photograph untouched instead of the cut-out. This is what
+   *  makes sharpening usable on its own: a reader who only wants a crisper
+   *  file, with the background they already had, never has to accept a cut
+   *  they did not ask for. */
+  keepOriginal = false,
+  /** Output multiplier. Resampling only — it enlarges, it does not restore
+   *  anything the sensor never recorded, and the interface says so. */
+  enlarge = 1,
 ): Promise<Blob> {
+  // Only worth doing when there is detail to recover and the browser will
+  // actually allocate the surface.
+  const bigger =
+    source !== null &&
+    source.w > w &&
+    source.w * source.h <= MAX_CANVAS_PX;
+
+  const baseW = bigger ? source!.w : w;
+  const baseH = bigger ? source!.h : h;
+
+  // Enlargement is refused rather than silently ignored when the result
+  // would exceed what the browser will allocate: a canvas past the ceiling
+  // comes back blank, and a blank file is worse than a smaller one.
+  const wanted = Math.max(1, Math.round(enlarge));
+  const fits = baseW * wanted * baseH * wanted <= MAX_CANVAS_PX;
+  const factor = fits ? wanted : 1;
+  const outW = baseW * factor;
+  const outH = baseH * factor;
+
   const canvas = document.createElement("canvas");
-  canvas.width = w;
-  canvas.height = h;
+  canvas.width = outW;
+  canvas.height = outH;
   const ctx = canvas.getContext("2d");
   if (!ctx) throw new Error("Canvas 2D tidak tersedia di peramban ini.");
 
@@ -193,12 +390,23 @@ export async function exportImage(
 
   if (format === "image/jpeg" && bg.kind === "transparent") {
     ctx.fillStyle = "#ffffff";
-    ctx.fillRect(0, 0, w, h);
+    ctx.fillRect(0, 0, outW, outH);
   } else {
-    paintBackground(ctx, bg, w, h);
+    paintBackground(ctx, bg, outW, outH);
   }
-  ctx.drawImage(subject, 0, 0, w, h);
-  if (overlay) paintOverlay(ctx, overlay, w, h);
+
+  if (keepOriginal && source) {
+    // No cut at all: the photograph as it arrived, only sharper.
+    ctx.drawImage(sharpenTo(source.img, outW, outH, sharpen), 0, 0, outW, outH);
+  } else if (bigger) {
+    // Sharpen after stencilling, so the operation sees the finished pixels
+    // and the alpha it must leave alone is already in place.
+    const cut = stencil(source!.img, subject, outW, outH);
+    ctx.drawImage(sharpenTo(cut, outW, outH, sharpen), 0, 0);
+  } else {
+    ctx.drawImage(sharpenTo(subject, outW, outH, sharpen), 0, 0, outW, outH);
+  }
+  if (overlay) paintOverlay(ctx, overlay, outW, outH, source?.img ?? subject);
 
   return new Promise((resolve, reject) => {
     canvas.toBlob(
@@ -224,10 +432,10 @@ export function downloadBlob(blob: Blob, filename: string) {
   setTimeout(() => URL.revokeObjectURL(url), 10_000);
 }
 
-/** "kucing.jpg" → "kucing-roto.png" */
+/** "kucing.jpg" → "kucing-mattecut.png" */
 export function outputName(original: string, ext: string) {
   const stem = original.replace(/\.[^.]+$/, "") || "gambar";
-  return `${stem}-roto.${ext}`;
+  return `${stem}-mattecut.${ext}`;
 }
 
 /**

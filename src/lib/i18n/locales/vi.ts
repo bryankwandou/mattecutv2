@@ -2,7 +2,7 @@ import type { Dict } from "../dict";
 
 export const vi: Dict = {
   meta: {
-    title: "Roto — xoá nền ảnh mà không cần tải lên",
+    title: "Mattecut — xoá nền ảnh mà không cần tải lên",
     description:
       "Công cụ xoá nền chạy ngay trong trình duyệt. Ảnh không được gửi tới máy chủ nào, không phải xếp hàng, và kết quả tải về ở đúng độ phân giải gốc.",
     studioTitle: "Studio",
@@ -28,12 +28,12 @@ export const vi: Dict = {
   },
   lang: { label: "Ngôn ngữ" },
   hero: {
-    badge: "Chạy trên thiết bị của bạn",
-    titleA: "Giữ lại chủ thể.",
-    titleB: "Bỏ đi phần còn lại.",
-    lead: "Roto cắt nền ảnh ngay bên trong trình duyệt. Tệp không bao giờ rời khỏi thiết bị của bạn, nên không có hàng đợi, không có hạn mức mỗi ngày, và không có điều gì bạn phải tin suông về chuyện gì xảy ra với tấm ảnh.",
+    badge: "Edge-AI · Privacy First · Không cần tài khoản",
+    titleA: "Studio ảnh thẻ & ảnh catalog sản phẩm cho doanh nghiệp nhỏ",
+    titleB: "Ngay trong trình duyệt của bạn",
+    lead: "Xóa nền ảnh, thay bằng phông studio trang trọng hoặc tạo ảnh catalog sản phẩm, tất cả được xử lý ngay trên thiết bị của bạn. Không có gì được tải lên máy chủ.",
     cta: "Cắt tấm ảnh đầu tiên",
-    note: "Không tài khoản · không tải lên · không hình mờ",
+    note: "Dùng thử ngay - không cần đăng ký",
     caption: "Alpha matte · 8-bit",
   },
   pillars: [
@@ -94,8 +94,8 @@ export const vi: Dict = {
     heading: "Vài điều nên biết trước khi thử",
     items: [
       {
-        title: "Lần đầu tải 54 MB",
-        body: "Mô hình phân đoạn phải vào trình duyệt trước đã. Chỉ một lần, sau đó được lưu lại. Nếu dung lượng mạng hạn chế, hãy làm qua Wi-Fi.",
+        title: "Lần đầu tải 12–190 MB",
+        body: "Tùy theo mức chất lượng. Không xóa nền: 0 MB. Cân bằng (mặc định) khoảng 95 MB, 106 MB nếu trình duyệt dùng WebGPU; cao nhất 179 MB, 190 MB với WebGPU. Chỉ một lần, sau đó được lưu lại. Nếu dung lượng hạn chế, hãy tải qua Wi-Fi.",
       },
       {
         title: "Máy cũ sẽ chậm hơn",
@@ -123,9 +123,16 @@ export const vi: Dict = {
     pick: "Chọn ảnh",
     formats: "JPG · PNG · WEBP — tối đa 12 MB",
     qualityLabel: "Chất lượng",
+    applyModel: "Dùng mô hình này",
+    liteTitle: "Siêu nhẹ",
+    liteNote:
+      "Mô hình {mb} MB · tải về nhỏ nhất, thô nhất ở tóc",
+    fineTitle: "Nhận biết tóc",
+    fineNote:
+      "Mô hình {mb} MB · coi tóc là lớp riêng, tải về vẫn nhỏ",
     lightTitle: "Nhẹ",
     lightNote:
-      "Mô hình {mb} MB · nhẹ nhất, cho máy và mạng hạn chế",
+      "Mô hình {mb} MB · tải về nhỏ, viền sắc hơn siêu nhẹ",
     balancedTitle: "Cân bằng",
     balancedNote:
       "Mô hình {mb} MB · lựa chọn ở giữa, đủ cho hầu hết ảnh",
@@ -145,8 +152,33 @@ export const vi: Dict = {
       "Không đọc được danh mục — mạng lỗi hoặc máy chủ gốc từ chối. Các dung lượng ở những mức trên hiện chưa được xác minh.",
     downloadPng: "Tải PNG",
     transparentSuffix: "trong suốt",
+    cutToggle: "Xóa nền",
+    cutToggleNote:
+      "Để tắt nếu chỉ muốn làm nét, phóng to hoặc thêm áo. Mô hình không hề được tải.",
+    cutSkipped: "Nền được giữ nguyên. Không cắt gì cả.",
+    bgNeedsCut:
+      "Đổi nền cần có bước cắt. Bật xóa nền rồi tải lại ảnh.",
+    enlargeLabel: "Phóng to",
+    enlargeNote:
+      "Lấy mẫu lại sang kích thước lớn hơn. Nó không khôi phục chi tiết máy ảnh chưa từng ghi.",
+    sharpenLabel: "Độ sắc nét",
+    sharpenLevels: ["Tắt", "Nhẹ", "Vừa", "Mạnh"],
+    sharpenNote:
+      "Chỉ tăng tương phản viền cho màu, không bao giờ cho viền cắt. Nó không tạo ra chi tiết máy ảnh không ghi được.",
+    keepOriginal: "Giữ nền gốc",
+    keepOriginalNote:
+      "Xuất ảnh nguyên trạng: sắc nét hơn, không cắt.",
     exportNote:
       "Luôn xuất ở độ phân giải gốc, không phải kích thước bản xem trước.",
+    exportNoteCapped:
+      "Đã xuất ở {w} × {h} px, nhỏ hơn ảnh gốc: máy này không tải nổi độ phân giải đầy đủ qua mô hình.",
+    exportNoteRestored:
+      "Xuất ở đủ {w} × {h} px của tệp bạn. Mô hình chạy trên bản nhỏ hơn nên chỉ viền cắt là mềm hơn — mọi điểm ảnh trong chủ thể là bản gốc của bạn.",
+    lowPower:
+      "Máy này báo bộ nhớ hoặc số nhân xử lý hạn chế, nên mô hình nhẹ nhất được chọn mặc định và ảnh được thu nhỏ về {px} px ở cạnh dài trước khi xử lý. Mọi mức vẫn có thể chọn.",
+    zoomOut: "Hiển thị nhỏ hơn",
+    zoomIn: "Hiển thị lớn hơn",
+    zoomFit: "Vừa màn hình",
     another: "Ảnh khác",
     restored: "Kết quả gần nhất đã được khôi phục sau khi thẻ đóng.",
     modelNote: "Đổi mô hình bất cứ lúc nào; phần tách được làm lại trên cùng ảnh.",
@@ -161,6 +193,7 @@ export const vi: Dict = {
       "Đặt tự động theo vai và cổ trên ảnh đã tách nền.",
     attireManual:
       "Không đọc được vai trong ảnh này. Hãy tự chỉnh kích thước và độ cao.",
+    attireReset: "Đặt lại kích thước và chiều cao",
     attireSize: "Kích thước",
     attireDrop: "Độ cao",
     firstDownloadNote:
@@ -181,7 +214,7 @@ export const vi: Dict = {
   },
   compare: {
     before: "Ảnh gốc",
-    after: "Roto",
+    after: "Mattecut",
     sliderLabel: "Kéo để so sánh trước và sau",
     altBefore: "Ảnh gốc trước khi xử lý",
     altAfter: "Kết quả sau khi nền đã bị xoá",
@@ -220,6 +253,31 @@ export const vi: Dict = {
     ],
     upload: "Ảnh của bạn",
     uploadHint: "Tệp vẫn ở trên máy này",
+    catalogueOpen:
+      "Xem tất cả nền",
+    catalogueTitle:
+      "Danh mục ảnh nền",
+    catalogueCount:
+      "{n} nền, tạo ngay trên máy này — không tải gì về",
+    catalogueByCount:
+      "{n} ảnh theo CC BY — dùng tự do, nhưng phải ghi tên tác giả",
+    catalogueOfflineCount:
+      "{n} ảnh lưu ngay trong ứng dụng — dùng được khi không có mạng",
+    catalogueTabOffline: "Ngoại tuyến",
+    creditRequired:
+      "Bắt buộc ghi nguồn ở bất cứ nơi nào bạn chia sẻ: {credit}",
+    cataloguePhotoCount:
+      "{n} ảnh, thuộc phạm vi công cộng hoặc CC0, phục vụ từ trang này",
+    catalogueTabGradients: "Màu sắc",
+    catalogueTabPhotos: "Ảnh",
+    catalogueSearch:
+      "Tìm: blue, soft, deep teal, gradient, #1f6fff",
+    catalogueEmpty:
+      "Không có kết quả. Thử tên màu hoặc mã hex.",
+    catalogueFailed:
+      "Không tải được danh sách ảnh. Kiểm tra kết nối rồi thử lại.",
+    creditShown:
+      "Ghi nguồn ảnh này ở bất cứ nơi nào bạn chia sẻ kết quả: {credit}",
     fitCover: "Lấp đầy",
     fitContain: "Vừa khung",
   },

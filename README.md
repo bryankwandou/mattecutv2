@@ -1,11 +1,13 @@
-# Roto
+# Mattecut
 
-Penghapus latar belakang gambar yang berjalan di dalam peramban. Berkas tidak
+Studio pasfoto dan foto katalog produk yang berjalan di dalam peramban: hapus latar, ganti latar studio, pasang jas otomatis. Tanpa akun. Berkas tidak
 pernah dikirim ke server mana pun, tidak ada antrean, tidak ada kuota harian,
 dan hasilnya diunduh pada resolusi asli.
 
-Nama diambil dari *rotoscoping*, istilah film untuk memisahkan subjek dari
-latarnya bingkai demi bingkai.
+Nama kode awal proyek ini adalah "Roto" (dari *rotoscoping*, istilah film untuk
+memisahkan subjek dari latarnya). Beberapa kunci teknis masih memakai awalan itu,
+misalnya `localStorage` `roto.lang`; sengaja tidak diubah agar pilihan bahasa
+pengguna lama tidak hilang.
 
 ## Apa yang membuatnya berbeda
 
@@ -15,7 +17,8 @@ server. Konsekuensinya nyata di dua arah, dan keduanya disebut apa adanya:
 - Gambar tidak menyentuh server kami, karena memang tidak ada server yang
   menerimanya. Tidak ada yang perlu Anda percayai soal apa yang terjadi pada
   foto Anda.
-- Unduhan pertama antara 54 MB dan 180 MB tergantung tingkat yang dipilih,
+- Unduhan pertama antara sekitar 12 MB dan sekitar 190 MB tergantung tingkat yang dipilih
+  (angka dihitung di `src/lib/matting.ts`, `downloadMb`),
   dan beban komputasi ada di perangkat Anda. Ponsel kelas bawah butuh
   belasan detik per gambar.
 
@@ -28,8 +31,11 @@ sebelum orang mencoba, bukan sesudah.
   JPG, PNG, WebP sampai 12 MB.
 - Pembanding sebelum/sesudah yang bisa digeser dengan tetikus, jari, dan
   tombol panah.
-- Tiga tingkat model untuk jaringan dan perangkat yang berbeda: ringan
-  (54 MB), seimbang (96 MB), dan maksimum (180 MB). Bisa diganti di tengah
+- Lima tingkat model untuk jaringan dan perangkat yang berbeda. Dua tingkat
+  MediaPipe (`src/lib/lite.ts`, sekitar 12 MB untuk selfie segmenter) dan tiga
+  tingkat ONNX/ISNet (`src/lib/matting.ts`): ringan (bobot 42,3 MB, total
+  sekitar 54 MB di CPU / 64 MB dengan WebGPU), seimbang (84,1 MB, sekitar 95 MB di CPU / 106 MB dengan
+  WebGPU), dan maksimum (168 MB, sekitar 179 / 190 MB). Bisa diganti di tengah
   penyuntingan; potongan diulang pada gambar yang sama tanpa kehilangan
   latar yang sudah dipilih.
 - Latar baru: transparan, swatch warna, gradien, enam wallpaper studio, atau
@@ -40,12 +46,29 @@ sebelum orang mencoba, bukan sesudah.
   menerima `#FF0000`, `#F00`, `#00f8`, `rgb(255, 0, 0)`, `rgb(10 20 30)`,
   dan `rgba(0, 0, 255, .4)`. Salah ketik ditandai, bukan diabaikan
   diam-diam.
-- Jas untuk pas foto: tiga potongan yang ditempatkan otomatis dari bahu dan
-  leher pada hasil potongan, plus penggeser ukuran dan tinggi untuk
-  mengoreksinya. Penempatan dibaca dari kanal alfa, bukan dari model pose,
-  jadi tidak ada unduhan tambahan. Batasnya disebut di antarmuka: ini
-  membaca potret hadap depan sebatas dada, dan kalau bahu tidak terbaca
-  aplikasinya bilang begitu alih-alih menebak.
+- Pasfoto dan jas otomatis: tiga potongan (charcoal, navy, blazer; SVG di
+  `public/attire/`) dipasang otomatis. Posisi bahu dibaca oleh MediaPipe Pose
+  (`src/lib/pose.ts`, model `pose_landmarker_lite.task` sekitar 5,8 MB di
+  `public/mediapipe/`); area pakaian dibaca dari kanal alfa
+  (`clothingSpans`) dan garmen disesuaikan di `src/lib/garment.ts`
+  (`fitGarment`). Penggeser ukuran dan tinggi jas tersedia untuk koreksi
+  manual. Batasnya disebut di antarmuka: ini membaca potret hadap depan
+  sebatas dada, dan kalau bahu tidak terbaca aplikasinya bilang begitu
+  alih-alih menebak (`src/lib/portrait.ts` sebagai cadangan).
+- Katalog latar offline: 934 berkas WebP di `public/offline/` (indeks dan
+  atribusi di `public/catalogue/offline.json`, 934 entri) yang bisa dipakai
+  tanpa jaringan, ditambah enam latar studio SVG di `public/backdrops/` dan
+  katalog daring `public/catalogue/photos.json` (24.408 entri).
+- Mode 0 MB tanpa hapus latar: matikan sakelar hapus latar di studio
+  (`cutBg`) untuk langsung memperjelas (`src/lib/sharpen.ts`), memperbesar
+  (`src/lib/upscale.ts`, model ESPCN sekitar 0,24 MB) atau memasang jas tanpa
+  mengunduh model segmentasi.
+- Bahasa awal mengikuti negara dari alamat IP: header `x-vercel-ip-country`
+  dibaca di `proxy.ts` lalu disimpan ke cookie dan dipetakan ke daftar
+  bahasa. Pilihan manual lewat LanguagePicker (tersimpan di `localStorage`)
+  selalu menang. Disclaimer VPN: kalau Anda memakai VPN atau proxy dari luar
+  negeri, bahasa awal mengikuti lokasi IP VPN itu, bukan zona waktu atau
+  bahasa peramban. Itu disengaja; ganti lewat LanguagePicker.
 - Hasil terakhir disimpan diam-diam di IndexedDB, jadi tab yang tertutup
   atau peramban yang mati tidak menghapus pekerjaan Anda. Latar dan jas
   yang dipilih ikut pulih.
@@ -77,6 +100,9 @@ npx tsc --noEmit
 | --- | --- |
 | `src/lib/matting.ts` | Pembungkus model. Satu-satunya tempat pustaka matting disentuh, dan bebas bahasa: yang keluar hanya kunci tahapan. |
 | `src/lib/color.ts` | Pengurai HEX dan `rgb()`, plus konversi HSV yang menjadi tulang punggung spektrum. Mengembalikan `null` untuk apa pun yang tidak terbaca, supaya antarmuka bisa menandainya. |
+| `src/lib/pose.ts` | Letak bahu lewat MediaPipe Pose (landmark 11 dan 12). |
+| `src/lib/garment.ts` | Mask area pakaian dan pemasangan jas pada bahu. |
+| `src/lib/lite.ts` | Segmentasi MediaPipe tingkat ringan. |
 | `src/lib/portrait.ts` | Letak leher dan bahu, dibaca dari lebar kanal alfa baris demi baris. Mengembalikan `null` untuk bentuk yang tidak masuk akal sebagai potret, supaya antarmuka bisa meminta penempatan manual alih-alih menebak. |
 | `src/lib/draft.ts` | Salinan tahan-crash di IndexedDB. Setiap kegagalan penyimpanan dibiarkan diam: studio harus tetap utuh di mode penyamaran, cuma tanpa jaring pengaman. |
 | `src/components/spectrum.tsx` | Spektrum warna dari gradien CSS, bukan kanvas. Tidak ada bitmap yang dialokasikan dan tidak ada yang digambar ulang saat digeser, jadi ponsel murah tidak dihukum. |
@@ -109,5 +135,17 @@ terkunci pada `'self'` ditambah satu CDN yang menyajikan model.
 ## Tumpukan
 
 Next.js 16 App Router, React 19, TypeScript, Tailwind CSS v4,
-`@imgly/background-removal` untuk matting di perangkat, `motion` untuk gerak,
+`@imgly/background-removal` dan `@mediapipe/tasks-vision` untuk matting dan pose di perangkat, `motion` untuk gerak,
 `lucide-react` untuk ikon.
+
+## Keberlanjutan
+
+Pemakaian tunggal di peramban gratis penuh dan akan tetap begitu: tanpa akun,
+tanpa kuota, tanpa server yang menanggung biaya komputasi, karena pemrosesan
+terjadi di perangkat pengguna.
+
+Berikut adalah RENCANA, belum ada di kode dan belum dijual:
+
+- Paket Pro/UMKM: pemrosesan massal foto katalog produk.
+- Preset cetak pasfoto multi-ukuran (3x4, 4x6, paspor).
+- Lisensi komponen untuk toko online yang ingin menanamkan fitur ini.

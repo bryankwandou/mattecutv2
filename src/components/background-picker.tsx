@@ -5,7 +5,9 @@ import { Check, ImagePlus } from "lucide-react";
 import { parseColor, toCss, toHex, type Rgba } from "@/lib/color";
 import { backdropUrl, type Background, type Fit } from "@/lib/compose";
 import { useI18n } from "@/components/preferences";
+import { fill } from "@/lib/i18n";
 import { Spectrum } from "@/components/spectrum";
+import { BackdropCatalogue } from "@/components/backdrop-catalogue";
 
 /** Labels live in the dictionaries; only the values live here, indexed by
  *  position so a translator never has to touch a hex code. */
@@ -60,6 +62,11 @@ export function BackgroundPicker({
   // of the choice has to be remembered separately from the value.
   const [active, setActive] = useState<string | null>(null);
   const [fit, setFit] = useState<Fit>("cover");
+  const [catalogue, setCatalogue] = useState(false);
+  // A CC BY photo carries an obligation, so the credit stays on screen for
+  // as long as that photo is the background. Cleared the moment another
+  // backdrop replaces it.
+  const [credit, setCredit] = useState<string | null>(null);
   const file = useRef<HTMLInputElement>(null);
 
   // Bundled backdrops are fetched and handed on as Blobs, exactly like an
@@ -71,6 +78,7 @@ export function BackgroundPicker({
     backdropUrl(blob);
     setDraft(null);
     setActive(name);
+    setCredit(null);
     onChange({ kind: "image", blob, fit });
   };
 
@@ -79,7 +87,10 @@ export function BackgroundPicker({
   const invalid =
     draft !== null && draft.trim().length > 0 && parseColor(draft) === null;
 
-  const applyColor = (c: Rgba) => onChange({ kind: "solid", color: c });
+  const applyColor = (c: Rgba) => {
+    setCredit(null);
+    onChange({ kind: "solid", color: c });
+  };
 
   return (
     <div className="space-y-5">
@@ -151,7 +162,42 @@ export function BackgroundPicker({
             );
           })}
         </div>
+        {/* The four above are the shortcuts. The rest live in a window of
+            their own: eight thousand swatches stacked in this column would
+            bury every other control on the page. */}
+        {credit && (
+          <p className="mt-2 rounded-lg border border-accent/40 bg-accent/10 p-2 text-[11px] leading-relaxed text-text">
+            {fill(t.bg.creditShown, { credit })}
+          </p>
+        )}
+        <button
+          onClick={() => setCatalogue(true)}
+          className="mt-2 w-full rounded-lg border border-line px-3 py-2 text-xs font-medium transition-colors hover:border-text-faint"
+        >
+          {t.bg.catalogueOpen}
+        </button>
       </Row>
+
+      <BackdropCatalogue
+        open={catalogue}
+        onClose={() => setCatalogue(false)}
+        onPick={(from, to, angle) => {
+          setDraft(null);
+          setActive(null);
+          onChange(
+            to ? { kind: "gradient", from, to, angle } : { kind: "solid", color: from },
+          );
+          setCatalogue(false);
+        }}
+        onPickPhoto={(blob, line) => {
+          backdropUrl(blob);
+          setDraft(null);
+          setActive("own");
+          setCredit(line);
+          onChange({ kind: "image", blob, fit });
+          setCatalogue(false);
+        }}
+      />
 
       <Row label={t.bg.wallpaperLabel}>
         <div className="space-y-2">

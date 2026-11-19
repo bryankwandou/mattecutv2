@@ -2,7 +2,7 @@ import type { Dict } from "../dict";
 
 export const en: Dict = {
   meta: {
-    title: "Roto — remove image backgrounds without uploading them",
+    title: "Mattecut — remove image backgrounds without uploading them",
     description:
       "A background remover that runs inside the browser. Images are never sent to a server, there is no queue, and the result downloads at the original resolution.",
     studioTitle: "Studio",
@@ -28,12 +28,12 @@ export const en: Dict = {
   },
   lang: { label: "Language" },
   hero: {
-    badge: "Runs on your device",
-    titleA: "Lift the subject.",
-    titleB: "Drop the rest.",
-    lead: "Roto cuts image backgrounds out inside the browser itself. The file never leaves your device, so there is no queue, no daily quota, and nothing you have to take on trust about what happens to your photo.",
+    badge: "Edge-AI · Privacy First · No Account",
+    titleA: "Passport Photo & Product Catalogue Studio for Small Businesses",
+    titleB: "Right in Your Browser",
+    lead: "Remove a photo background, swap in a formal studio backdrop, or make product catalogue photos, all processed on your device. Nothing is uploaded to a server.",
     cta: "Cut your first image",
-    note: "No account · no upload · no watermark",
+    note: "Try It Now - No Sign-up",
     caption: "Alpha matte · 8-bit",
   },
   pillars: [
@@ -94,8 +94,8 @@ export const en: Dict = {
     heading: "Things worth knowing before you try it",
     items: [
       {
-        title: "A 54 MB first download",
-        body: "The segmentation model has to reach the browser first. Once only, then it stays cached. On a metered connection, do it over Wi-Fi.",
+        title: "12–190 MB first download",
+        body: "It depends on the quality tier. No background removal: 0 MB. Balanced (default) is about 95 MB, 106 MB if the browser uses WebGPU; highest is 179 MB, 190 MB with WebGPU. Once only, then it stays cached. On a metered connection, do it over Wi-Fi.",
       },
       {
         title: "Older devices feel slower",
@@ -123,9 +123,16 @@ export const en: Dict = {
     pick: "Choose an image",
     formats: "JPG · PNG · WEBP — 12 MB maximum",
     qualityLabel: "Quality",
+    applyModel: "Use this model",
+    liteTitle: "Ultra light",
+    liteNote:
+      "{mb} MB model · smallest download, softest around hair",
+    fineTitle: "Hair-aware",
+    fineNote:
+      "{mb} MB model · treats hair as its own layer, still a small download",
     lightTitle: "Light",
     lightNote:
-      "{mb} MB model · lightest, for limited devices and connections",
+      "{mb} MB model · small download, sharper edges than ultra light",
     balancedTitle: "Balanced",
     balancedNote:
       "{mb} MB model · the middle choice, enough for most photos",
@@ -145,7 +152,33 @@ export const en: Dict = {
       "The catalogue could not be read — the network failed or the origin refused. The sizes on the tiers above are unverified right now.",
     downloadPng: "Download PNG",
     transparentSuffix: "transparent",
+    cutToggle: "Remove the background",
+    cutToggleNote:
+      "Leave this off to only sharpen, enlarge or add a jacket. The model is not downloaded at all.",
+    cutSkipped:
+      "The background was kept. Nothing was cut.",
+    bgNeedsCut:
+      "Changing the background needs the cut. Turn on background removal and load the image again.",
+    enlargeLabel: "Enlarge",
+    enlargeNote:
+      "Resamples to a larger size. It does not recover detail the camera never recorded, so it is scaling, not rescue.",
+    sharpenLabel: "Sharpness",
+    sharpenLevels: ["Off", "Light", "Medium", "Strong"],
+    sharpenNote:
+      "Adds edge contrast to the colour only, never to the cut edge. It recovers no detail the camera did not record.",
+    keepOriginal: "Keep the original background",
+    keepOriginalNote:
+      "Exports the photograph as it arrived, sharpened but uncut.",
     exportNote: "Always exported at the original resolution, not the preview size.",
+    exportNoteCapped:
+      "Exported at {w} × {h} px, smaller than the original: this machine could not carry the full resolution through the model.",
+    exportNoteRestored:
+      "Exported at the full {w} × {h} px of your file. The model ran on a smaller copy, so only the cut edge is softer — every pixel inside the subject is your original.",
+    lowPower:
+      "This machine reports limited memory or processor cores, so the lightest model is selected by default and photos are reduced to {px} px on the long edge before processing. Every tier is still selectable.",
+    zoomOut: "Show smaller",
+    zoomIn: "Show larger",
+    zoomFit: "Fit to screen",
     another: "Another image",
     restored: "Your last result was restored after the tab closed.",
     modelNote: "Switch model any time; the cut is redone on the same image.",
@@ -160,6 +193,7 @@ export const en: Dict = {
       "Placed automatically from the shoulders and neck in the cut-out.",
     attireManual:
       "The shoulders were not readable in this photo. Set size and height yourself.",
+    attireReset: "Reset size and height",
     attireSize: "Size",
     attireDrop: "Height",
     firstDownloadNote:
@@ -180,7 +214,7 @@ export const en: Dict = {
   },
   compare: {
     before: "Original",
-    after: "Roto",
+    after: "Mattecut",
     sliderLabel: "Drag to compare before and after",
     altBefore: "The original image before processing",
     altAfter: "The result after the background was removed",
@@ -219,6 +253,31 @@ export const en: Dict = {
     ],
     upload: "Your own image",
     uploadHint: "The file stays on this device",
+    catalogueOpen:
+      "Browse all backgrounds",
+    catalogueTitle:
+      "Background catalogue",
+    catalogueCount:
+      "{n} backgrounds, generated on this device — nothing downloaded",
+    catalogueByCount:
+      "{n} photos under CC BY — free to use, but the author must be credited",
+    catalogueOfflineCount:
+      "{n} photos stored in the app itself — these work with no connection",
+    catalogueTabOffline: "Offline",
+    creditRequired:
+      "Credit required wherever you share this: {credit}",
+    cataloguePhotoCount:
+      "{n} photos, public domain or CC0, served from this site",
+    catalogueTabGradients: "Colours",
+    catalogueTabPhotos: "Photos",
+    catalogueSearch:
+      "Search: blue, soft, deep teal, gradient, #1f6fff",
+    catalogueEmpty:
+      "Nothing matches that. Try a colour name, or a hex code.",
+    catalogueFailed:
+      "The photo list could not be loaded. Check the connection and try again.",
+    creditShown:
+      "Credit this photo wherever you share the result: {credit}",
     fitCover: "Fill",
     fitContain: "Fit",
   },

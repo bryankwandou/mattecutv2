@@ -16,14 +16,14 @@ const geistMono = Geist_Mono({
   display: "swap",
 });
 
-const SITE = "https://roto-live.vercel.app";
+const SITE = "https://mattecut.vercel.app";
 const base = DICTS[DEFAULT_LOCALE];
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE),
-  title: { default: base.meta.title, template: "%s · Roto" },
+  title: { default: base.meta.title, template: "%s · Mattecut" },
   description: base.meta.description,
-  applicationName: "Roto",
+  applicationName: "Mattecut",
   keywords: [
     "hapus background",
     "background remover",
@@ -31,12 +31,16 @@ export const metadata: Metadata = {
     "transparent png",
     "potong subjek",
     "ganti warna latar",
+    "pasfoto",
+    "foto katalog produk UMKM",
+    "jas otomatis",
+    "edge AI",
   ],
-  authors: [{ name: "Roto" }],
+  authors: [{ name: "Mattecut" }],
   openGraph: {
     type: "website",
     url: SITE,
-    siteName: "Roto",
+    siteName: "Mattecut",
     title: base.meta.title,
     description: base.meta.description,
   },

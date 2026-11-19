@@ -2,7 +2,7 @@ import type { Dict } from "../dict";
 
 export const pt: Dict = {
   meta: {
-    title: "Roto — remova o fundo das imagens sem enviá-las",
+    title: "Mattecut — remova o fundo das imagens sem enviá-las",
     description:
       "Um removedor de fundo que roda dentro do navegador. As imagens nunca são enviadas a um servidor, não há fila e o resultado é baixado na resolução original.",
     studioTitle: "Estúdio",
@@ -28,12 +28,12 @@ export const pt: Dict = {
   },
   lang: { label: "Idioma" },
   hero: {
-    badge: "Roda no seu aparelho",
-    titleA: "Levante o sujeito.",
-    titleB: "Descarte o resto.",
-    lead: "O Roto recorta o fundo das imagens dentro do próprio navegador. O arquivo nunca sai do seu aparelho, então não há fila, não há cota diária e não há nada que você precise aceitar na fé sobre o que acontece com a sua foto.",
+    badge: "Edge-AI · Privacy First · Sem conta",
+    titleA: "Estúdio de fotos 3x4 e catálogo de produtos para pequenos negócios",
+    titleB: "Direto no seu navegador",
+    lead: "Remova o fundo de uma foto, troque por um fundo de estúdio formal ou crie fotos de catálogo de produtos, tudo processado no seu aparelho. Nada é enviado a um servidor.",
     cta: "Recortar a primeira imagem",
-    note: "Sem conta · sem envio · sem marca d'água",
+    note: "Experimente agora - sem cadastro",
     caption: "Alpha matte · 8 bits",
   },
   pillars: [
@@ -94,8 +94,8 @@ export const pt: Dict = {
     heading: "O que vale saber antes de testar",
     items: [
       {
-        title: "Um primeiro download de 54 MB",
-        body: "O modelo de segmentação precisa chegar ao navegador primeiro. Uma vez só, e depois fica guardado. Em plano limitado, faça isso no Wi-Fi.",
+        title: "Primeiro download de 12–190 MB",
+        body: "Depende do nível de qualidade. Sem remover o fundo: 0 MB. Equilibrado (padrão) tem cerca de 95 MB, 106 MB se o navegador usar WebGPU; o máximo é 179 MB, 190 MB com WebGPU. Uma vez só, e depois fica guardado. Em plano limitado, faça isso no Wi-Fi.",
       },
       {
         title: "Aparelhos antigos ficam mais lentos",
@@ -123,9 +123,16 @@ export const pt: Dict = {
     pick: "Escolher imagem",
     formats: "JPG · PNG · WEBP — 12 MB no máximo",
     qualityLabel: "Qualidade",
+    applyModel: "Usar este modelo",
+    liteTitle: "Ultraleve",
+    liteNote:
+      "Modelo de {mb} MB · o menor download, mais grosseiro no cabelo",
+    fineTitle: "Atento ao cabelo",
+    fineNote:
+      "Modelo de {mb} MB · trata o cabelo como camada própria, download ainda pequeno",
     lightTitle: "Leve",
     lightNote:
-      "Modelo de {mb} MB · o mais leve, para aparelhos e conexões limitados",
+      "Modelo de {mb} MB · download pequeno, bordas mais nítidas que ultraleve",
     balancedTitle: "Equilibrado",
     balancedNote:
       "Modelo de {mb} MB · a opção do meio, suficiente para quase todas as fotos",
@@ -145,8 +152,34 @@ export const pt: Dict = {
       "O catálogo não pôde ser lido — a rede falhou ou a origem recusou. Os tamanhos nos níveis acima estão sem verificação agora.",
     downloadPng: "Baixar PNG",
     transparentSuffix: "transparente",
+    cutToggle: "Remover o fundo",
+    cutToggleNote:
+      "Deixe desligado para apenas dar nitidez, ampliar ou adicionar um paleto. O modelo nem é baixado.",
+    cutSkipped:
+      "O fundo foi mantido. Nada foi recortado.",
+    bgNeedsCut:
+      "Trocar o fundo exige o recorte. Ligue a remoção e carregue a imagem de novo.",
+    enlargeLabel: "Ampliar",
+    enlargeNote:
+      "Reamostra para um tamanho maior. Não recupera detalhe que a câmera nunca gravou: é escala, não resgate.",
+    sharpenLabel: "Nitidez",
+    sharpenLevels: ["Desligado", "Leve", "Média", "Forte"],
+    sharpenNote:
+      "Adiciona contraste de borda apenas à cor, nunca à borda do recorte. Não recupera detalhe que a câmera não gravou.",
+    keepOriginal: "Manter o fundo original",
+    keepOriginalNote:
+      "Exporta a foto como chegou: mais nítida, sem recorte.",
     exportNote:
       "Sempre exportado na resolução original, não no tamanho da prévia.",
+    exportNoteCapped:
+      "Exportado em {w} × {h} px, menor que o original: este aparelho não conseguiu levar a resolução completa através do modelo.",
+    exportNoteRestored:
+      "Exportado nos {w} × {h} px completos do seu arquivo. O modelo rodou numa cópia menor, então só a borda do recorte fica mais suave — cada pixel do sujeito é o seu original.",
+    lowPower:
+      "Este aparelho informa memória ou núcleos limitados, por isso o modelo mais leve é escolhido por padrão e as fotos são reduzidas a {px} px no lado maior antes do processamento. Todos os níveis continuam selecionáveis.",
+    zoomOut: "Ver menor",
+    zoomIn: "Ver maior",
+    zoomFit: "Ajustar à tela",
     another: "Outra imagem",
     restored: "Seu último resultado foi restaurado depois que a aba fechou.",
     modelNote: "Troque de modelo quando quiser; o recorte é refeito na mesma imagem.",
@@ -161,6 +194,7 @@ export const pt: Dict = {
       "Posicionado automaticamente a partir dos ombros e do pescoço no recorte.",
     attireManual:
       "Os ombros não puderam ser lidos nesta foto. Ajuste o tamanho e a altura você mesmo.",
+    attireReset: "Redefinir tamanho e altura",
     attireSize: "Tamanho",
     attireDrop: "Altura",
     firstDownloadNote:
@@ -181,7 +215,7 @@ export const pt: Dict = {
   },
   compare: {
     before: "Original",
-    after: "Roto",
+    after: "Mattecut",
     sliderLabel: "Arraste para comparar antes e depois",
     altBefore: "A imagem original antes do processamento",
     altAfter: "O resultado depois que o fundo foi removido",
@@ -220,6 +254,31 @@ export const pt: Dict = {
     ],
     upload: "Sua própria imagem",
     uploadHint: "O arquivo fica neste aparelho",
+    catalogueOpen:
+      "Ver todos os fundos",
+    catalogueTitle:
+      "Catálogo de fundos",
+    catalogueCount:
+      "{n} fundos, gerados neste aparelho — nada baixado",
+    catalogueByCount:
+      "{n} fotos sob CC BY — livres para usar, mas o autor deve ser creditado",
+    catalogueOfflineCount:
+      "{n} fotos guardadas no próprio app — funcionam sem conexão",
+    catalogueTabOffline: "Offline",
+    creditRequired:
+      "Crédito obrigatório onde quer que você compartilhe isto: {credit}",
+    cataloguePhotoCount:
+      "{n} fotos, domínio público ou CC0, servidas deste site",
+    catalogueTabGradients: "Cores",
+    catalogueTabPhotos: "Fotos",
+    catalogueSearch:
+      "Buscar: blue, soft, deep teal, gradient, #1f6fff",
+    catalogueEmpty:
+      "Nada corresponde. Tente um nome de cor ou um código hex.",
+    catalogueFailed:
+      "Não foi possível carregar a lista de fotos. Verifique a conexão e tente de novo.",
+    creditShown:
+      "Credite esta foto onde quer que compartilhe o resultado: {credit}",
     fitCover: "Preencher",
     fitContain: "Ajustar",
   },

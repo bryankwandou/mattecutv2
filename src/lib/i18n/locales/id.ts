@@ -2,7 +2,7 @@ import type { Dict } from "../dict";
 
 export const id: Dict = {
   meta: {
-    title: "Roto — hapus latar gambar tanpa mengunggahnya",
+    title: "Mattecut — hapus latar gambar tanpa mengunggahnya",
     description:
       "Penghapus latar belakang yang bekerja di dalam peramban. Gambar tidak dikirim ke server mana pun, tidak ada antrean, dan hasilnya diunduh pada resolusi asli.",
     studioTitle: "Studio",
@@ -28,12 +28,12 @@ export const id: Dict = {
   },
   lang: { label: "Bahasa" },
   hero: {
-    badge: "Berjalan di perangkat Anda",
-    titleA: "Angkat subjeknya.",
-    titleB: "Buang sisanya.",
-    lead: "Roto memotong latar belakang gambar langsung di dalam peramban. Berkasnya tidak pernah dikirim ke mana-mana, jadi tidak ada antrean, tidak ada kuota harian, dan tidak ada yang perlu Anda percayai soal apa yang terjadi pada foto Anda.",
+    badge: "Edge-AI · Privacy First · Tanpa Akun",
+    titleA: "Studio Pasfoto & Katalog Produk UMKM",
+    titleB: "Langsung di Peramban Anda",
+    lead: "Hapus latar belakang foto, ganti dengan latar studio formal, atau buat foto katalog produk, semuanya diproses di perangkat Anda. Tidak ada unggah ke server.",
     cta: "Potong gambar pertama",
-    note: "Tanpa akun · tanpa unggah · tanpa tanda air",
+    note: "Coba Sekarang - Tanpa Daftar",
     caption: "Alpha matte · 8-bit",
   },
   pillars: [
@@ -94,8 +94,8 @@ export const id: Dict = {
     heading: "Hal-hal yang sebaiknya Anda tahu sebelum mencoba",
     items: [
       {
-        title: "Unduhan awal 54 MB",
-        body: "Model segmentasi harus masuk ke peramban dulu. Sekali saja, lalu tersimpan. Di kuota terbatas, kerjakan lewat Wi-Fi.",
+        title: "Unduhan awal 12–190 MB",
+        body: "Tergantung tingkat kualitas. Mode tanpa hapus latar: 0 MB. Seimbang (bawaan) sekitar 95 MB, 106 MB bila peramban memakai WebGPU; tertinggi 179 MB, 190 MB dengan WebGPU. Sekali saja, lalu tersimpan. Di kuota terbatas, kerjakan lewat Wi-Fi.",
       },
       {
         title: "Perangkat lama terasa lebih lambat",
@@ -121,9 +121,16 @@ export const id: Dict = {
     pick: "Pilih gambar",
     formats: "JPG · PNG · WEBP — maksimum 12 MB",
     qualityLabel: "Kualitas",
+    applyModel: "Pakai model ini",
+    liteTitle: "Sangat ringan",
+    liteNote:
+      "Model {mb} MB · unduhan terkecil, paling kasar di rambut",
+    fineTitle: "Peka rambut",
+    fineNote:
+      "Model {mb} MB · memperlakukan rambut sebagai lapisan tersendiri, unduhan tetap kecil",
     lightTitle: "Ringan",
     lightNote:
-      "Model {mb} MB · paling ringan, untuk perangkat dan jaringan terbatas",
+      "Model {mb} MB · unduhan kecil, tepi lebih tajam dari sangat ringan",
     balancedTitle: "Seimbang",
     balancedNote:
       "Model {mb} MB · pilihan tengah, cukup untuk hampir semua foto",
@@ -143,7 +150,33 @@ export const id: Dict = {
       "Katalog tidak terbaca — jaringan gagal atau server asal menolak. Angka pada tingkat kualitas di atas tidak terbukti saat ini.",
     downloadPng: "Unduh PNG",
     transparentSuffix: "transparan",
+    cutToggle: "Hapus latar belakang",
+    cutToggleNote:
+      "Biarkan mati kalau hanya ingin mempertajam, memperbesar, atau menambah jas. Modelnya tidak diunduh sama sekali.",
+    cutSkipped:
+      "Latar dipertahankan. Tidak ada yang dipotong.",
+    bgNeedsCut:
+      "Mengganti latar memerlukan pemotongan. Nyalakan penghapusan latar lalu muat ulang gambarnya.",
+    enlargeLabel: "Perbesar",
+    enlargeNote:
+      "Mengambil ulang sampel ke ukuran lebih besar. Ia tidak memunculkan detail yang tidak pernah direkam kamera — ini penskalaan, bukan penyelamatan.",
+    sharpenLabel: "Ketajaman",
+    sharpenLevels: ["Mati", "Ringan", "Sedang", "Kuat"],
+    sharpenNote:
+      "Menambah kontras tepi hanya pada warna, tidak pernah pada tepi potongan. Ia tidak memunculkan detail yang tidak direkam kamera.",
+    keepOriginal: "Pertahankan latar asli",
+    keepOriginalNote:
+      "Mengekspor foto apa adanya — dipertajam, tanpa dipotong.",
     exportNote: "Selalu diekspor pada resolusi asli, bukan ukuran pratinjau.",
+    exportNoteCapped:
+      "Diekspor pada {w} × {h} px, lebih kecil dari aslinya: perangkat ini tidak sanggup membawa resolusi penuh melewati model.",
+    exportNoteRestored:
+      "Diekspor pada {w} × {h} px penuh sesuai berkas Anda. Model berjalan pada salinan lebih kecil, jadi hanya tepi potongannya yang lebih lembut — seluruh piksel di dalam subjek adalah asli milik Anda.",
+    lowPower:
+      "Perangkat ini melaporkan memori atau inti prosesor yang terbatas, jadi model teringan dipilih sebagai bawaan dan foto dikecilkan ke {px} px pada sisi terpanjang sebelum diproses. Semua tingkat tetap bisa dipilih.",
+    zoomOut: "Perkecil tampilan",
+    zoomIn: "Perbesar tampilan",
+    zoomFit: "Muat ke layar",
     another: "Gambar lain",
     restored: "Hasil terakhir dipulihkan setelah tab tertutup.",
     modelNote: "Ganti model kapan saja; potongan diulang pada gambar yang sama.",
@@ -158,6 +191,7 @@ export const id: Dict = {
       "Ditempatkan otomatis dari bahu dan leher pada potongan.",
     attireManual:
       "Bahu tidak terbaca pada foto ini. Atur sendiri ukuran dan tingginya.",
+    attireReset: "Kembalikan ukuran dan tinggi",
     attireSize: "Ukuran",
     attireDrop: "Tinggi",
     firstDownloadNote:
@@ -178,7 +212,7 @@ export const id: Dict = {
   },
   compare: {
     before: "Asli",
-    after: "Roto",
+    after: "Mattecut",
     sliderLabel: "Geser untuk membandingkan sebelum dan sesudah",
     altBefore: "Gambar asli sebelum diproses",
     altAfter: "Hasil setelah latar dihapus",
@@ -217,6 +251,31 @@ export const id: Dict = {
     ],
     upload: "Gambar sendiri",
     uploadHint: "Berkas tetap di perangkat ini",
+    catalogueOpen:
+      "Jelajahi semua latar",
+    catalogueTitle:
+      "Katalog latar belakang",
+    catalogueCount:
+      "{n} latar, dibangkitkan di perangkat ini — tidak ada yang diunduh",
+    catalogueByCount:
+      "{n} foto berlisensi CC BY — bebas dipakai, tetapi nama pembuat wajib dicantumkan",
+    catalogueOfflineCount:
+      "{n} foto tersimpan di dalam aplikasi — ini bekerja tanpa koneksi",
+    catalogueTabOffline: "Tanpa jaringan",
+    creditRequired:
+      "Wajib dicantumkan di mana pun hasil ini dibagikan: {credit}",
+    cataloguePhotoCount:
+      "{n} foto, domain publik atau CC0, disajikan dari situs ini",
+    catalogueTabGradients: "Warna",
+    catalogueTabPhotos: "Foto",
+    catalogueSearch:
+      "Cari: biru, lembut, teal gelap, gradien, #1f6fff",
+    catalogueEmpty:
+      "Tidak ada yang cocok. Coba nama warna, atau kode heksa.",
+    catalogueFailed:
+      "Daftar foto tidak dapat dimuat. Periksa koneksi lalu coba lagi.",
+    creditShown:
+      "Cantumkan kredit foto ini di mana pun hasilnya dibagikan: {credit}",
     fitCover: "Penuhi",
     fitContain: "Muat",
   },

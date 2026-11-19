@@ -2,7 +2,7 @@ import type { Dict } from "../dict";
 
 export const fr: Dict = {
   meta: {
-    title: "Roto — détourez vos images sans les envoyer",
+    title: "Mattecut — détourez vos images sans les envoyer",
     description:
       "Un détoureur qui fonctionne dans le navigateur. Les images ne partent sur aucun serveur, il n'y a pas de file d'attente, et le résultat se télécharge à la résolution d'origine.",
     studioTitle: "Studio",
@@ -28,12 +28,12 @@ export const fr: Dict = {
   },
   lang: { label: "Langue" },
   hero: {
-    badge: "Fonctionne sur votre appareil",
-    titleA: "Gardez le sujet.",
-    titleB: "Jetez le reste.",
-    lead: "Roto détoure le fond des images à l'intérieur même du navigateur. Le fichier ne quitte jamais votre appareil : pas de file d'attente, pas de quota quotidien, et rien à croire sur parole quant à ce qu'il advient de votre photo.",
+    badge: "Edge-AI · Privacy First · Sans compte",
+    titleA: "Studio photo d'identité et catalogue produits pour petites entreprises",
+    titleB: "Directement dans votre navigateur",
+    lead: "Supprimez le fond d'une photo, remplacez-le par un fond de studio formel ou créez des photos de catalogue produit, le tout traité sur votre appareil. Rien n'est envoyé à un serveur.",
     cta: "Détourer une première image",
-    note: "Sans compte · sans envoi · sans filigrane",
+    note: "Essayez maintenant - sans inscription",
     caption: "Alpha matte · 8 bits",
   },
   pillars: [
@@ -94,8 +94,8 @@ export const fr: Dict = {
     heading: "Ce qu'il vaut mieux savoir avant d'essayer",
     items: [
       {
-        title: "Un premier téléchargement de 54 Mo",
-        body: "Le modèle de segmentation doit d'abord arriver dans le navigateur. Une seule fois, puis il reste en cache. Avec un forfait limité, faites-le en Wi-Fi.",
+        title: "Premier téléchargement de 12 à 190 Mo",
+        body: "Cela dépend du niveau de qualité. Sans suppression du fond : 0 Mo. Équilibré (par défaut) pèse environ 95 Mo, 106 Mo si le navigateur utilise WebGPU ; le maximum est de 179 Mo, 190 Mo avec WebGPU. Une seule fois, puis il reste en cache. Avec un forfait limité, faites-le en Wi-Fi.",
       },
       {
         title: "Les appareils anciens sont plus lents",
@@ -123,9 +123,16 @@ export const fr: Dict = {
     pick: "Choisir une image",
     formats: "JPG · PNG · WEBP — 12 Mo maximum",
     qualityLabel: "Qualité",
+    applyModel: "Utiliser ce modèle",
+    liteTitle: "Ultraléger",
+    liteNote:
+      "Modèle de {mb} Mo · le plus petit téléchargement, plus grossier sur les cheveux",
+    fineTitle: "Attentif aux cheveux",
+    fineNote:
+      "Modèle de {mb} Mo · traite les cheveux comme une couche à part, téléchargement encore léger",
     lightTitle: "Léger",
     lightNote:
-      "Modèle de {mb} Mo · le plus léger, pour appareils et connexions limités",
+      "Modèle de {mb} Mo · petit téléchargement, bords plus nets qu’ultraléger",
     balancedTitle: "Équilibré",
     balancedNote:
       "Modèle de {mb} Mo · le choix intermédiaire, suffisant pour presque toutes les photos",
@@ -145,8 +152,34 @@ export const fr: Dict = {
       "Le catalogue n’a pas pu être lu — la connexion a échoué ou l’origine a refusé. Les tailles des niveaux ci-dessus ne sont pas vérifiées pour l’instant.",
     downloadPng: "Télécharger le PNG",
     transparentSuffix: "transparent",
+    cutToggle: "Enlever le fond",
+    cutToggleNote:
+      "Laissez désactivé pour seulement affiner, agrandir ou ajouter une veste. Le modèle n’est pas téléchargé.",
+    cutSkipped:
+      "Le fond a été conservé. Rien n’a été découpé.",
+    bgNeedsCut:
+      "Changer le fond exige la découpe. Activez la suppression et rechargez l’image.",
+    enlargeLabel: "Agrandir",
+    enlargeNote:
+      "Rééchantillonne vers une taille supérieure. Aucun détail non enregistré n’est retrouvé : c’est un agrandissement, pas un sauvetage.",
+    sharpenLabel: "Netteté",
+    sharpenLevels: ["Désactivé", "Léger", "Moyen", "Fort"],
+    sharpenNote:
+      "Ajoute du contraste de bord à la couleur seulement, jamais au bord de la découpe. Aucun détail non enregistré par le capteur n’est inventé.",
+    keepOriginal: "Conserver le fond d’origine",
+    keepOriginalNote:
+      "Exporte la photo telle quelle : plus nette, sans découpe.",
     exportNote:
       "Toujours exporté à la résolution d'origine, pas à la taille de l'aperçu.",
+    exportNoteCapped:
+      "Exporté en {w} × {h} px, plus petit que l’original : cette machine n’a pas pu faire passer la pleine résolution dans le modèle.",
+    exportNoteRestored:
+      "Exporté aux {w} × {h} px complets de votre fichier. Le modèle a travaillé sur une copie réduite : seul le bord de la découpe est plus doux, chaque pixel du sujet est votre original.",
+    lowPower:
+      "Cette machine signale une mémoire ou un nombre de cœurs limité : le modèle le plus léger est donc choisi par défaut et les photos sont réduites à {px} px sur le grand côté avant traitement. Tous les niveaux restent sélectionnables.",
+    zoomOut: "Afficher plus petit",
+    zoomIn: "Afficher plus grand",
+    zoomFit: "Ajuster à l’écran",
     another: "Une autre image",
     restored: "Votre dernier résultat a été restauré après la fermeture de l’onglet.",
     modelNote: "Changez de modèle à tout moment ; le détourage est refait sur la même image.",
@@ -161,6 +194,7 @@ export const fr: Dict = {
       "Placée automatiquement d'après les épaules et le cou du détourage.",
     attireManual:
       "Les épaules n'ont pas pu être lues sur cette photo. Réglez la taille et la hauteur vous-même.",
+    attireReset: "Réinitialiser taille et hauteur",
     attireSize: "Taille",
     attireDrop: "Hauteur",
     firstDownloadNote:
@@ -181,7 +215,7 @@ export const fr: Dict = {
   },
   compare: {
     before: "Original",
-    after: "Roto",
+    after: "Mattecut",
     sliderLabel: "Faites glisser pour comparer avant et après",
     altBefore: "L'image d'origine avant traitement",
     altAfter: "Le résultat après suppression du fond",
@@ -220,6 +254,31 @@ export const fr: Dict = {
     ],
     upload: "Votre propre image",
     uploadHint: "Le fichier reste sur cet appareil",
+    catalogueOpen:
+      "Parcourir tous les fonds",
+    catalogueTitle:
+      "Catalogue de fonds",
+    catalogueCount:
+      "{n} fonds, générés sur cet appareil — rien de téléchargé",
+    catalogueByCount:
+      "{n} photos sous CC BY — libres d’usage, mais l’auteur doit être crédité",
+    catalogueOfflineCount:
+      "{n} photos stockées dans l’application — elles marchent sans connexion",
+    catalogueTabOffline: "Hors ligne",
+    creditRequired:
+      "Crédit obligatoire partout où vous partagez ceci : {credit}",
+    cataloguePhotoCount:
+      "{n} photos, domaine public ou CC0, servies depuis ce site",
+    catalogueTabGradients: "Couleurs",
+    catalogueTabPhotos: "Photos",
+    catalogueSearch:
+      "Rechercher : blue, soft, deep teal, gradient, #1f6fff",
+    catalogueEmpty:
+      "Aucun résultat. Essayez un nom de couleur ou un code hex.",
+    catalogueFailed:
+      "La liste de photos n’a pas pu être chargée. Vérifiez la connexion et réessayez.",
+    creditShown:
+      "Créditez cette photo partout où vous partagez le résultat : {credit}",
     fitCover: "Remplir",
     fitContain: "Ajuster",
   },
