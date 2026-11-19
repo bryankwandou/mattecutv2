@@ -180,6 +180,7 @@ function Pillars() {
 
   return (
     <section className="border-b border-line-soft">
+      <h2 className="sr-only">{t.features.eyebrow}</h2>
       <div className="mx-auto grid max-w-6xl gap-px overflow-hidden bg-line-soft px-4 sm:px-6 md:grid-cols-3">
         {t.pillars.map((it, i) => {
           const Icon = icons[i];

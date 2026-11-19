@@ -31,6 +31,10 @@ export const metadata: Metadata = {
     "transparent png",
     "potong subjek",
     "ganti warna latar",
+    "pasfoto",
+    "foto katalog produk UMKM",
+    "jas otomatis",
+    "edge AI",
   ],
   authors: [{ name: "Mattecut" }],
   openGraph: {
