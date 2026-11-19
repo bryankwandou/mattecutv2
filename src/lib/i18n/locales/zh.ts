@@ -27,12 +27,12 @@ export const zh: Dict = {
   },
   lang: { label: "语言" },
   hero: {
-    badge: "在你的设备上运行",
-    titleA: "留下主体。",
-    titleB: "扔掉其余。",
-    lead: "Mattecut 直接在浏览器里抠掉图片背景。文件从不离开你的设备，因此没有排队，没有每日额度，也没有什么关于照片去向的说法需要你凭信任接受。",
+    badge: "Edge-AI · Privacy First · 无需账号",
+    titleA: "面向小微商家的证件照与商品图录工作室",
+    titleB: "直接在浏览器里使用",
+    lead: "去掉照片背景，换成正式的影棚背景，或制作商品图录照片，全部在你的设备上处理，不会上传到任何服务器。",
     cta: "抠第一张图",
-    note: "无需账号 · 无需上传 · 没有水印",
+    note: "立即试用 - 无需注册",
     caption: "Alpha matte · 8 位",
   },
   pillars: [
@@ -93,8 +93,8 @@ export const zh: Dict = {
     heading: "动手之前值得知道的事",
     items: [
       {
-        title: "首次要下载 54 MB",
-        body: "分割模型得先进到浏览器里。只有一次，之后就存着了。流量有限的话，请在 Wi-Fi 下完成。",
+        title: "首次下载 12–190 MB",
+        body: "取决于质量档位。不去除背景的模式：0 MB。均衡档（默认）约 95 MB，浏览器使用 WebGPU 时为 106 MB；最高档 179 MB，使用 WebGPU 时为 190 MB。只有一次，之后就存着了。流量有限的话，请在 Wi-Fi 下完成。",
       },
       {
         title: "旧设备会更慢",

@@ -28,12 +28,12 @@ export const fr: Dict = {
   },
   lang: { label: "Langue" },
   hero: {
-    badge: "Fonctionne sur votre appareil",
-    titleA: "Gardez le sujet.",
-    titleB: "Jetez le reste.",
-    lead: "Mattecut détoure le fond des images à l'intérieur même du navigateur. Le fichier ne quitte jamais votre appareil : pas de file d'attente, pas de quota quotidien, et rien à croire sur parole quant à ce qu'il advient de votre photo.",
+    badge: "Edge-AI · Privacy First · Sans compte",
+    titleA: "Studio photo d'identité et catalogue produits pour petites entreprises",
+    titleB: "Directement dans votre navigateur",
+    lead: "Supprimez le fond d'une photo, remplacez-le par un fond de studio formel ou créez des photos de catalogue produit, le tout traité sur votre appareil. Rien n'est envoyé à un serveur.",
     cta: "Détourer une première image",
-    note: "Sans compte · sans envoi · sans filigrane",
+    note: "Essayez maintenant - sans inscription",
     caption: "Alpha matte · 8 bits",
   },
   pillars: [
@@ -94,8 +94,8 @@ export const fr: Dict = {
     heading: "Ce qu'il vaut mieux savoir avant d'essayer",
     items: [
       {
-        title: "Un premier téléchargement de 54 Mo",
-        body: "Le modèle de segmentation doit d'abord arriver dans le navigateur. Une seule fois, puis il reste en cache. Avec un forfait limité, faites-le en Wi-Fi.",
+        title: "Premier téléchargement de 12 à 190 Mo",
+        body: "Cela dépend du niveau de qualité. Sans suppression du fond : 0 Mo. Équilibré (par défaut) pèse environ 95 Mo, 106 Mo si le navigateur utilise WebGPU ; le maximum est de 179 Mo, 190 Mo avec WebGPU. Une seule fois, puis il reste en cache. Avec un forfait limité, faites-le en Wi-Fi.",
       },
       {
         title: "Les appareils anciens sont plus lents",

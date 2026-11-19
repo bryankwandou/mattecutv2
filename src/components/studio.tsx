@@ -54,6 +54,14 @@ import { clearDraft, loadDraft, saveDraft } from "@/lib/draft";
 import { findPortrait, type Portrait } from "@/lib/portrait";
 import { SHARPEN_STEPS, sharpenTo, type SharpenLevel } from "@/lib/sharpen";
 import { clothingSpans, fitGarment } from "@/lib/garment";
+import {
+  SamplePhotos,
+  ScenarioPicker,
+  presetFromUrl,
+  saveDataOn,
+  type Scenario,
+} from "@/components/studio-samples";
+import { QuickBackdrops, ResultStatus, WarmStatus } from "@/components/result-extras";
 
 const ACCEPTED = ["image/jpeg", "image/png", "image/webp"];
 const MAX_BYTES = 12 * 1024 * 1024;
@@ -196,6 +204,34 @@ export function Studio() {
   } | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const urls = useRef<string[]>([]);
+  // [3B] Scenario chosen before upload; [3C] whether the model was already in
+  // memory when the last cut started (null = no cut ran, so no claim).
+  const [scenario, setScenario] = useState<Scenario | null>(null);
+  const [modelHot, setModelHot] = useState<boolean | null>(null);
+  const saveData = useSyncExternalStore(subscribeNever, saveDataOn, serverIsFine);
+  const applyScenario = useCallback((id: Scenario) => {
+    setScenario(id);
+    if (id === "passport") {
+      setCutBg(true);
+      setBg({ kind: "solid", color: { r: 0x1f, g: 0x6f, b: 0xff, a: 1 } });
+      setAttire("charcoal");
+    } else if (id === "catalog") {
+      setCutBg(true);
+      setBg({ kind: "solid", color: { r: 255, g: 255, b: 255, a: 1 } });
+      setAttire(null);
+    } else {
+      setCutBg(false);
+      setWarming(false);
+      setAttire("charcoal");
+    }
+  }, []);
+  useEffect(() => {
+    // Deferred a tick so the URL preset applies after mount, not inside it.
+    const p = presetFromUrl();
+    if (!p) return;
+    const t = window.setTimeout(() => applyScenario(p), 0);
+    return () => window.clearTimeout(t);
+  }, [applyScenario]);
 
   useEffect(() => {
     let alive = true;
@@ -321,6 +357,7 @@ export function Studio() {
 
       setBusy(true);
       setPicked(q);
+      setModelHot(cutBg ? isWarm(q) : null);
       setProgress(
         cutBg
           ? {
@@ -479,6 +516,8 @@ export function Studio() {
   // first cut is not also the first big download.
   useEffect(() => {
     if (shot || busy) return;
+    // [4B] No warm-up when nothing will be cut, or the browser asks to save data.
+    if (!cutBg || scenario === "quick" || saveData) return;
     let alive = true;
     const timer = setTimeout(() => {
       if (isWarm(quality)) return;
@@ -497,7 +536,7 @@ export function Studio() {
       alive = false;
       clearTimeout(timer);
     };
-  }, [quality, shot, busy]);
+  }, [quality, shot, busy, cutBg, scenario, saveData]);
 
   // The clothing region, found the first time a jacket is chosen for a
   // picture. A null answer is not a failure: the garment falls back to the
@@ -735,12 +774,20 @@ export function Studio() {
           onGpu={onGpu}
           progress={progress}
           cutBg={cutBg}
-          onCutBg={setCutBg}
+          onCutBg={(v) => {
+            setCutBg(v);
+            if (!v) setWarming(false);
+            if (v && scenario === "quick") setScenario(null);
+          }}
           quality={quality}
           onQuality={setPicked}
           onPick={() => inputRef.current?.click()}
           onDragState={setDragOver}
           onFile={run}
+          scenario={scenario}
+          onScenario={applyScenario}
+          onError={setError}
+          saveData={saveData}
         />
       ) : (
         <div className="grid gap-6 sm:grid-cols-[minmax(0,1fr)_260px] md:grid-cols-[minmax(0,1fr)_300px] xl:grid-cols-[minmax(0,1fr)_340px] 2xl:grid-cols-[minmax(0,1fr)_380px]">
@@ -785,6 +832,13 @@ export function Studio() {
                   : null
               }
               maxVh={viewVh}
+            />
+            <QuickBackdrops value={bg} onChange={setBg} enabled={shot.cut} />
+            <ResultStatus
+              onGpu={onGpu}
+              modelHot={shot.cut ? modelHot : null}
+              attireOn={attire !== null}
+              attireAuto={shoulders !== null && clothesFor === shot.file}
             />
             <div className="flex flex-wrap items-center justify-between gap-3">
               <p className="mono text-[11px] text-text-faint" dir="ltr">
@@ -1117,7 +1171,15 @@ function Dropzone({
   onFile,
   cutBg,
   onCutBg,
+  scenario,
+  onScenario,
+  onError,
+  saveData,
 }: {
+  scenario: Scenario | null;
+  onScenario: (s: Scenario) => void;
+  onError: (msg: string) => void;
+  saveData: boolean;
   /** Whether the background will be removed at all. Asked before the upload
    *  because the answer decides whether a 95 MB model is fetched. */
   cutBg: boolean;
@@ -1157,7 +1219,8 @@ function Dropzone({
         {busy ? (
           <ProgressPanel progress={progress} quality={quality} onGpu={onGpu} />
         ) : (
-          <div className="text-center">
+          <div className="w-full text-center">
+            <ScenarioPicker value={scenario} onPick={onScenario} disabled={busy} />
             <div className="mx-auto mb-6 grid h-16 w-16 place-items-center rounded-2xl border border-line bg-surface">
               <ImageIcon size={26} className="text-text-faint" />
             </div>
@@ -1188,6 +1251,16 @@ function Dropzone({
                 </span>
               </span>
             </label>
+            <WarmStatus
+              cutBg={cutBg}
+              warming={warming}
+              ready={cutBg && isWarm(quality)}
+              saveData={saveData}
+              mb={downloadMb(quality, onGpu)}
+              ratio={progress?.ratio ?? null}
+              onZeroMb={() => onScenario("quick")}
+            />
+            <SamplePhotos disabled={busy} onFile={onFile} onError={onError} />
             <p className="mono mt-5 text-[11px] text-text-faint">
               {t.studio.formats}
             </p>

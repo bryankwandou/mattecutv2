@@ -28,12 +28,12 @@ export const de: Dict = {
   },
   lang: { label: "Sprache" },
   hero: {
-    badge: "Läuft auf Ihrem Gerät",
-    titleA: "Motiv freistellen.",
-    titleB: "Rest verwerfen.",
-    lead: "Mattecut schneidet Bildhintergründe direkt im Browser heraus. Die Datei verlässt Ihr Gerät nie, also gibt es keine Warteschlange, kein Tageslimit und nichts, was Sie darüber glauben müssten, was mit Ihrem Foto passiert.",
+    badge: "Edge-AI · Privacy First · Ohne Konto",
+    titleA: "Passbild- und Produktkatalog-Studio für kleine Unternehmen",
+    titleB: "Direkt in Ihrem Browser",
+    lead: "Entfernen Sie den Fotohintergrund, setzen Sie einen formellen Studiohintergrund ein oder erstellen Sie Produktkatalogfotos, alles auf Ihrem Gerät verarbeitet. Es wird nichts auf einen Server hochgeladen.",
     cta: "Erstes Bild freistellen",
-    note: "Ohne Konto · ohne Upload · ohne Wasserzeichen",
+    note: "Jetzt ausprobieren - ohne Anmeldung",
     caption: "Alpha-Matte · 8 Bit",
   },
   pillars: [
@@ -94,8 +94,8 @@ export const de: Dict = {
     heading: "Was Sie vorher wissen sollten",
     items: [
       {
-        title: "54 MB beim ersten Mal",
-        body: "Das Segmentierungsmodell muss zuerst in den Browser. Nur einmal, danach bleibt es gespeichert. Bei begrenztem Datenvolumen besser über WLAN.",
+        title: "Erster Download: 12–190 MB",
+        body: "Das hängt von der Qualitätsstufe ab. Ohne Hintergrundentfernung: 0 MB. Ausgewogen (Standard) sind etwa 95 MB, 106 MB mit WebGPU; höchste Stufe 179 MB, 190 MB mit WebGPU. Nur einmal, danach bleibt es gespeichert. Bei begrenztem Datenvolumen besser über WLAN.",
       },
       {
         title: "Ältere Geräte sind langsamer",

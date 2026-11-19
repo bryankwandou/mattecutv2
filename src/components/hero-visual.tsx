@@ -1,7 +1,10 @@
 "use client";
 
 import { motion, useReducedMotion } from "motion/react";
+import { useEffect, useState } from "react";
 import { useI18n } from "@/components/preferences";
+import { CompareSlider } from "@/components/compare-slider";
+import { heroVisualStrings } from "@/lib/i18n/segments/hero-visual";
 
 /**
  * The hero illustration.
@@ -14,7 +17,7 @@ import { useI18n } from "@/components/preferences";
  * All colours are tokens, so the same illustration reads correctly on a
  * white page and on a black one.
  */
-export function HeroVisual() {
+function AbstractVisual() {
   const still = useReducedMotion();
   const { t } = useI18n();
 
@@ -114,6 +117,112 @@ export function HeroVisual() {
 
       <span className="mono absolute -bottom-7 start-0 text-[10px] uppercase tracking-[0.16em] text-text-faint">
         {t.hero.caption}
+      </span>
+    </div>
+  );
+}
+
+type Sample = {
+  key: "person" | "product";
+  before: string;
+  after: string;
+  backdrop: string;
+};
+
+const SAMPLES: Sample[] = [
+  {
+    key: "person",
+    before: "/samples/person.jpg",
+    after: "/samples/person-cut.png",
+    // Passport-photo studio blue, the same family as the backdrop picker.
+    backdrop: "linear-gradient(180deg, #4a78b5 0%, #2f5a96 100%)",
+  },
+  {
+    key: "product",
+    before: "/samples/product.jpg",
+    after: "/samples/product-cut.png",
+    // Soft studio gradient for catalogue shots.
+    backdrop: "radial-gradient(120% 90% at 50% 25%, #ffffff 0%, #e6e6e2 70%, #d4d4cf 100%)",
+  },
+];
+
+function probe(src: string): Promise<boolean> {
+  return new Promise((resolve) => {
+    const img = new Image();
+    img.onload = () => resolve(true);
+    img.onerror = () => resolve(false);
+    img.src = src;
+  });
+}
+
+/**
+ * Hero preview: a real before/after slider when the sample photos and their
+ * cut-outs exist, the abstract scan illustration otherwise. The frame keeps
+ * the old 4/3 box so the hero layout never shifts between the two.
+ */
+export function HeroVisual() {
+  const { locale } = useI18n();
+  const s = heroVisualStrings[locale];
+  const [ready, setReady] = useState<Record<string, boolean>>({});
+  const [active, setActive] = useState<Sample["key"]>("person");
+
+  useEffect(() => {
+    let alive = true;
+    SAMPLES.forEach(async (smp) => {
+      const ok = (await probe(smp.before)) && (await probe(smp.after));
+      if (alive && ok) setReady((r) => ({ ...r, [smp.key]: true }));
+    });
+    return () => {
+      alive = false;
+    };
+  }, []);
+
+  const avail = SAMPLES.filter((x) => ready[x.key]);
+  if (avail.length === 0) return <AbstractVisual />;
+  const cur = avail.find((x) => x.key === active) ?? avail[0];
+
+  return (
+    <div className="relative mx-auto aspect-[4/3] w-full max-w-lg">
+      <div
+        className="absolute inset-0 grid place-items-center overflow-hidden rounded-2xl border border-line bg-ink-2"
+        style={{ background: "var(--hv-2)" }}
+      >
+        <CompareSlider
+          key={cur.key}
+          before={cur.before}
+          after={cur.after}
+          backdrop={cur.backdrop}
+          maxVh={34}
+        />
+      </div>
+
+      {avail.length > 1 && (
+        <div
+          role="group"
+          aria-label={s.switchLabel}
+          className="absolute end-3 top-3 flex gap-1 rounded-lg p-1 backdrop-blur"
+          style={{ background: "var(--scrim)", border: "1px solid var(--scrim-line)" }}
+        >
+          {avail.map((x) => (
+            <button
+              key={x.key}
+              type="button"
+              aria-pressed={x.key === cur.key}
+              onClick={() => setActive(x.key)}
+              className="mono rounded-md px-2 py-1 text-[10px] uppercase tracking-[0.12em] transition-colors"
+              style={{
+                color: "var(--scrim-fg)",
+                background: x.key === cur.key ? "#ffffff30" : "transparent",
+              }}
+            >
+              {s[x.key]}
+            </button>
+          ))}
+        </div>
+      )}
+
+      <span className="mono absolute -bottom-7 start-0 text-[10px] uppercase tracking-[0.16em] text-text-faint">
+        {s.caption}
       </span>
     </div>
   );

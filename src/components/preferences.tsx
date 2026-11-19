@@ -18,6 +18,7 @@ import {
   type Dict,
   type LocaleCode,
 } from "@/lib/i18n";
+import { GEO_COOKIE, geoLocaleFromCookie } from "@/lib/i18n/geo";
 
 export type ThemeChoice = "light" | "dark" | "system";
 export const THEME_KEY = "mattecut.theme";
@@ -96,7 +97,10 @@ const themeStore = makeStore<ThemeChoice>(THEME_KEY, "system", (raw) =>
 const langStore = makeStore<LocaleCode>(LANG_KEY, DEFAULT_LOCALE, (raw) => {
   const stored = normalizeLocale(raw);
   if (stored) return stored;
-  // Nothing chosen yet: fall back to what the browser says it reads.
+  // Nothing chosen yet: the network location decides first (a VPN abroad
+  // therefore gives that country's language — intended), then the browser.
+  const geo = normalizeLocale(geoLocaleFromCookie());
+  if (geo) return geo;
   return (
     normalizeLocale(navigator.language) ??
     normalizeLocale(navigator.languages?.[0]) ??
@@ -255,6 +259,7 @@ if(t==='light'||t==='dark')d.setAttribute('data-theme',t);
 var codes=${JSON.stringify(LOCALES.map((l) => l.code))};
 var rtl=${JSON.stringify(LOCALES.filter((l) => l.dir === "rtl").map((l) => l.code))};
 var l=localStorage.getItem('${LANG_KEY}');
-if(!l||codes.indexOf(l)<0){var n=(navigator.language||'').toLowerCase().split('-')[0];l=codes.indexOf(n)>-1?n:null;}
+if(!l||codes.indexOf(l)<0){var g=null,c=document.cookie.split(';');for(var i=0;i<c.length;i++){var p=c[i].trim().split('=');if(p[0]==='${GEO_COOKIE}')g=p[1];}l=g&&codes.indexOf(g)>-1?g:null;}
+if(!l){var n=(navigator.language||'').toLowerCase().split('-')[0];l=codes.indexOf(n)>-1?n:null;}
 if(l){d.lang=l;d.dir=rtl.indexOf(l)>-1?'rtl':'ltr';}
 }catch(e){}})();`;

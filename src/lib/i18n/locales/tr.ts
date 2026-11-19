@@ -28,12 +28,12 @@ export const tr: Dict = {
   },
   lang: { label: "Dil" },
   hero: {
-    badge: "Kendi cihazınızda çalışır",
-    titleA: "Özneyi ayırın.",
-    titleB: "Gerisini atın.",
-    lead: "Mattecut, görsellerin arka planını doğrudan tarayıcının içinde keser. Dosya cihazınızdan hiç çıkmaz; yani sıra yok, günlük kota yok ve fotoğrafınıza ne olduğu konusunda kimseye güvenmeniz gerekmiyor.",
+    badge: "Edge-AI · Privacy First · Hesapsız",
+    titleA: "Küçük İşletmeler İçin Vesikalık Fotoğraf ve Ürün Katalog Stüdyosu",
+    titleB: "Doğrudan Tarayıcınızda",
+    lead: "Fotoğrafın arka planını kaldırın, resmi bir stüdyo fonuyla değiştirin ya da ürün katalog fotoğrafları hazırlayın, hepsi cihazınızda işlenir. Sunucuya hiçbir şey yüklenmez.",
     cta: "İlk görseli kesin",
-    note: "Hesap yok · yükleme yok · filigran yok",
+    note: "Şimdi Deneyin - Kayıt Gerekmez",
     caption: "Alfa matte · 8 bit",
   },
   pillars: [
@@ -94,8 +94,8 @@ export const tr: Dict = {
     heading: "Denemeden önce bilmekte fayda olanlar",
     items: [
       {
-        title: "İlk seferde 54 MB indirme",
-        body: "Bölütleme modelinin önce tarayıcıya inmesi gerekir. Yalnızca bir kez, sonra saklı kalır. Kotanız kısıtlıysa Wi-Fi ile yapın.",
+        title: "İlk seferde 12–190 MB indirme",
+        body: "Kalite düzeyine göre değişir. Arka plan kaldırma olmadan: 0 MB. Dengeli (varsayılan) yaklaşık 95 MB, tarayıcı WebGPU kullanıyorsa 106 MB; en yüksek 179 MB, WebGPU ile 190 MB. Yalnızca bir kez, sonra saklı kalır. Kotanız kısıtlıysa Wi-Fi ile yapın.",
       },
       {
         title: "Eski cihazlar daha yavaş",

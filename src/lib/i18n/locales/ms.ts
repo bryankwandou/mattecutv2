@@ -28,12 +28,12 @@ export const ms: Dict = {
   },
   lang: { label: "Bahasa" },
   hero: {
-    badge: "Berjalan pada peranti anda",
-    titleA: "Angkat subjeknya.",
-    titleB: "Buang selebihnya.",
-    lead: "Mattecut memotong latar belakang gambar terus di dalam pelayar. Failnya tidak pernah keluar dari peranti anda, jadi tiada giliran menunggu, tiada kuota harian, dan tiada apa-apa yang perlu anda percayai tentang apa yang berlaku kepada foto anda.",
+    badge: "Edge-AI · Privacy First · Tanpa Akaun",
+    titleA: "Studio Gambar Pasport & Katalog Produk PKS",
+    titleB: "Terus dalam Pelayar Anda",
+    lead: "Buang latar belakang foto, gantikan dengan latar studio formal, atau hasilkan foto katalog produk, semuanya diproses pada peranti anda. Tiada muat naik ke pelayan.",
     cta: "Potong gambar pertama",
-    note: "Tanpa akaun · tanpa muat naik · tanpa tera air",
+    note: "Cuba Sekarang - Tanpa Daftar",
     caption: "Alpha matte · 8-bit",
   },
   pillars: [
@@ -94,8 +94,8 @@ export const ms: Dict = {
     heading: "Perkara yang elok anda tahu sebelum mencuba",
     items: [
       {
-        title: "Muat turun awal 54 MB",
-        body: "Model segmentasi perlu masuk ke pelayar dahulu. Sekali sahaja, kemudian tersimpan. Pada kuota terhad, buat menerusi Wi-Fi.",
+        title: "Muat turun awal 12–190 MB",
+        body: "Bergantung pada tahap kualiti. Mod tanpa buang latar: 0 MB. Seimbang (lalai) kira-kira 95 MB, 106 MB jika pelayar menggunakan WebGPU; tertinggi 179 MB, 190 MB dengan WebGPU. Sekali sahaja, kemudian tersimpan. Pada kuota terhad, buat menerusi Wi-Fi.",
       },
       {
         title: "Peranti lama terasa lebih perlahan",

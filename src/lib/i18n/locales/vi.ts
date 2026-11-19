@@ -28,12 +28,12 @@ export const vi: Dict = {
   },
   lang: { label: "Ngôn ngữ" },
   hero: {
-    badge: "Chạy trên thiết bị của bạn",
-    titleA: "Giữ lại chủ thể.",
-    titleB: "Bỏ đi phần còn lại.",
-    lead: "Mattecut cắt nền ảnh ngay bên trong trình duyệt. Tệp không bao giờ rời khỏi thiết bị của bạn, nên không có hàng đợi, không có hạn mức mỗi ngày, và không có điều gì bạn phải tin suông về chuyện gì xảy ra với tấm ảnh.",
+    badge: "Edge-AI · Privacy First · Không cần tài khoản",
+    titleA: "Studio ảnh thẻ & ảnh catalog sản phẩm cho doanh nghiệp nhỏ",
+    titleB: "Ngay trong trình duyệt của bạn",
+    lead: "Xóa nền ảnh, thay bằng phông studio trang trọng hoặc tạo ảnh catalog sản phẩm, tất cả được xử lý ngay trên thiết bị của bạn. Không có gì được tải lên máy chủ.",
     cta: "Cắt tấm ảnh đầu tiên",
-    note: "Không tài khoản · không tải lên · không hình mờ",
+    note: "Dùng thử ngay - không cần đăng ký",
     caption: "Alpha matte · 8-bit",
   },
   pillars: [
@@ -94,8 +94,8 @@ export const vi: Dict = {
     heading: "Vài điều nên biết trước khi thử",
     items: [
       {
-        title: "Lần đầu tải 54 MB",
-        body: "Mô hình phân đoạn phải vào trình duyệt trước đã. Chỉ một lần, sau đó được lưu lại. Nếu dung lượng mạng hạn chế, hãy làm qua Wi-Fi.",
+        title: "Lần đầu tải 12–190 MB",
+        body: "Tùy theo mức chất lượng. Không xóa nền: 0 MB. Cân bằng (mặc định) khoảng 95 MB, 106 MB nếu trình duyệt dùng WebGPU; cao nhất 179 MB, 190 MB với WebGPU. Chỉ một lần, sau đó được lưu lại. Nếu dung lượng hạn chế, hãy tải qua Wi-Fi.",
       },
       {
         title: "Máy cũ sẽ chậm hơn",

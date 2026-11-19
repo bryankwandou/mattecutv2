@@ -18,6 +18,9 @@ import { Reveal } from "@/components/reveal";
 import { Walkthrough } from "@/components/walkthrough";
 import { LanguagePicker, ThemeToggle } from "@/components/switches";
 import { useI18n } from "@/components/preferences";
+import { UseCases } from "@/components/use-cases";
+import { HowItWorks } from "@/components/how-it-works";
+import { landingStrings } from "@/lib/i18n/segments/landing";
 
 const REPO = "https://github.com/bryankwandou/mattecut";
 
@@ -35,11 +38,14 @@ export default function Home() {
       <Nav />
       <main id="main" className="relative">
         <Hero />
+        <UseCases />
+        <HowItWorks />
         <Pillars />
         <Steps />
         <Features />
         <Honesty />
         <Closer />
+        <Positioning />
       </main>
       <Footer />
     </>
@@ -101,6 +107,8 @@ function Aurora() {
 
 function Hero() {
   const { t } = useI18n();
+  // hero.note already carries the "try now, no sign-up" microcopy;
+  // landingStrings.ctaMicro is kept as a spare and is not rendered here.
 
   return (
     <section className="relative overflow-hidden border-b border-line-soft">
@@ -108,13 +116,9 @@ function Hero() {
       <div className="relative mx-auto grid max-w-6xl gap-14 px-4 py-20 sm:px-6 sm:py-28 lg:grid-cols-2 lg:items-center lg:gap-16">
         <div>
           <Reveal>
-            <span className="mono inline-flex items-center gap-2 rounded-full border border-line bg-surface px-3 py-1.5 text-[11px] uppercase tracking-[0.1em] text-text-dim">
-              <span className="relative flex h-1.5 w-1.5">
-                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-ok opacity-60" />
-                <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-ok" />
-              </span>
+            <p className="mono text-[11px] uppercase tracking-[0.14em] text-text-dim">
               {t.hero.badge}
-            </span>
+            </p>
           </Reveal>
 
           <Reveal delay={0.05}>
@@ -320,6 +324,20 @@ function Closer() {
           </Link>
         </Reveal>
       </div>
+    </section>
+  );
+}
+
+function Positioning() {
+  const { locale } = useI18n();
+
+  return (
+    <section className="border-b border-line-soft">
+      <Reveal>
+        <p className="mx-auto max-w-2xl px-4 py-12 text-center text-balance text-lg font-medium leading-relaxed tracking-[-0.01em] text-text sm:px-6 sm:text-xl">
+          {landingStrings[locale].positioning}
+        </p>
+      </Reveal>
     </section>
   );
 }

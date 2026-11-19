@@ -28,12 +28,12 @@ export const id: Dict = {
   },
   lang: { label: "Bahasa" },
   hero: {
-    badge: "Berjalan di perangkat Anda",
-    titleA: "Angkat subjeknya.",
-    titleB: "Buang sisanya.",
-    lead: "Mattecut memotong latar belakang gambar langsung di dalam peramban. Berkasnya tidak pernah dikirim ke mana-mana, jadi tidak ada antrean, tidak ada kuota harian, dan tidak ada yang perlu Anda percayai soal apa yang terjadi pada foto Anda.",
+    badge: "Edge-AI · Privacy First · Tanpa Akun",
+    titleA: "Studio Pasfoto & Katalog Produk UMKM",
+    titleB: "Langsung di Peramban Anda",
+    lead: "Hapus latar belakang foto, ganti dengan latar studio formal, atau buat foto katalog produk, semuanya diproses di perangkat Anda. Tidak ada unggah ke server.",
     cta: "Potong gambar pertama",
-    note: "Tanpa akun · tanpa unggah · tanpa tanda air",
+    note: "Coba Sekarang - Tanpa Daftar",
     caption: "Alpha matte · 8-bit",
   },
   pillars: [
@@ -94,8 +94,8 @@ export const id: Dict = {
     heading: "Hal-hal yang sebaiknya Anda tahu sebelum mencoba",
     items: [
       {
-        title: "Unduhan awal 54 MB",
-        body: "Model segmentasi harus masuk ke peramban dulu. Sekali saja, lalu tersimpan. Di kuota terbatas, kerjakan lewat Wi-Fi.",
+        title: "Unduhan awal 12–190 MB",
+        body: "Tergantung tingkat kualitas. Mode tanpa hapus latar: 0 MB. Seimbang (bawaan) sekitar 95 MB, 106 MB bila peramban memakai WebGPU; tertinggi 179 MB, 190 MB dengan WebGPU. Sekali saja, lalu tersimpan. Di kuota terbatas, kerjakan lewat Wi-Fi.",
       },
       {
         title: "Perangkat lama terasa lebih lambat",

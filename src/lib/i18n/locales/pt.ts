@@ -28,12 +28,12 @@ export const pt: Dict = {
   },
   lang: { label: "Idioma" },
   hero: {
-    badge: "Roda no seu aparelho",
-    titleA: "Levante o sujeito.",
-    titleB: "Descarte o resto.",
-    lead: "O Mattecut recorta o fundo das imagens dentro do próprio navegador. O arquivo nunca sai do seu aparelho, então não há fila, não há cota diária e não há nada que você precise aceitar na fé sobre o que acontece com a sua foto.",
+    badge: "Edge-AI · Privacy First · Sem conta",
+    titleA: "Estúdio de fotos 3x4 e catálogo de produtos para pequenos negócios",
+    titleB: "Direto no seu navegador",
+    lead: "Remova o fundo de uma foto, troque por um fundo de estúdio formal ou crie fotos de catálogo de produtos, tudo processado no seu aparelho. Nada é enviado a um servidor.",
     cta: "Recortar a primeira imagem",
-    note: "Sem conta · sem envio · sem marca d'água",
+    note: "Experimente agora - sem cadastro",
     caption: "Alpha matte · 8 bits",
   },
   pillars: [
@@ -94,8 +94,8 @@ export const pt: Dict = {
     heading: "O que vale saber antes de testar",
     items: [
       {
-        title: "Um primeiro download de 54 MB",
-        body: "O modelo de segmentação precisa chegar ao navegador primeiro. Uma vez só, e depois fica guardado. Em plano limitado, faça isso no Wi-Fi.",
+        title: "Primeiro download de 12–190 MB",
+        body: "Depende do nível de qualidade. Sem remover o fundo: 0 MB. Equilibrado (padrão) tem cerca de 95 MB, 106 MB se o navegador usar WebGPU; o máximo é 179 MB, 190 MB com WebGPU. Uma vez só, e depois fica guardado. Em plano limitado, faça isso no Wi-Fi.",
       },
       {
         title: "Aparelhos antigos ficam mais lentos",

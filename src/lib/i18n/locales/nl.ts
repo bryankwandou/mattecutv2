@@ -28,12 +28,12 @@ export const nl: Dict = {
   },
   lang: { label: "Taal" },
   hero: {
-    badge: "Draait op je eigen apparaat",
-    titleA: "Til het onderwerp eruit.",
-    titleB: "Gooi de rest weg.",
-    lead: "Mattecut knipt achtergronden weg binnen de browser zelf. Het bestand verlaat je apparaat nooit, dus geen wachtrij, geen daglimiet en niets wat je op goed vertrouwen hoeft aan te nemen over wat er met je foto gebeurt.",
+    badge: "Edge-AI · Privacy First · Zonder account",
+    titleA: "Pasfoto- en productcatalogusstudio voor kleine bedrijven",
+    titleB: "Direct in je browser",
+    lead: "Verwijder de achtergrond van een foto, vervang hem door een formele studioachtergrond of maak productcatalogusfoto's, alles verwerkt op je eigen apparaat. Er wordt niets naar een server geüpload.",
     cta: "Knip je eerste afbeelding",
-    note: "Geen account · geen upload · geen watermerk",
+    note: "Probeer het nu - zonder aanmelden",
     caption: "Alpha matte · 8 bits",
   },
   pillars: [
@@ -94,8 +94,8 @@ export const nl: Dict = {
     heading: "Wat je beter kunt weten voor je begint",
     items: [
       {
-        title: "Een eerste download van 54 MB",
-        body: "Het segmentatiemodel moet eerst in de browser komen. Eén keer, daarna blijft het bewaard. Met een beperkte bundel: doe het via wifi.",
+        title: "Een eerste download van 12–190 MB",
+        body: "Dat hangt af van het kwaliteitsniveau. Zonder achtergrond verwijderen: 0 MB. Gebalanceerd (standaard) is ongeveer 95 MB, 106 MB als de browser WebGPU gebruikt; hoogste is 179 MB, 190 MB met WebGPU. Eén keer, daarna blijft het bewaard. Met een beperkte bundel: doe het via wifi.",
       },
       {
         title: "Oudere apparaten voelen trager",

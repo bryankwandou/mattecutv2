@@ -28,12 +28,12 @@ export const en: Dict = {
   },
   lang: { label: "Language" },
   hero: {
-    badge: "Runs on your device",
-    titleA: "Lift the subject.",
-    titleB: "Drop the rest.",
-    lead: "Mattecut cuts image backgrounds out inside the browser itself. The file never leaves your device, so there is no queue, no daily quota, and nothing you have to take on trust about what happens to your photo.",
+    badge: "Edge-AI · Privacy First · No Account",
+    titleA: "Passport Photo & Product Catalogue Studio for Small Businesses",
+    titleB: "Right in Your Browser",
+    lead: "Remove a photo background, swap in a formal studio backdrop, or make product catalogue photos, all processed on your device. Nothing is uploaded to a server.",
     cta: "Cut your first image",
-    note: "No account · no upload · no watermark",
+    note: "Try It Now - No Sign-up",
     caption: "Alpha matte · 8-bit",
   },
   pillars: [
@@ -94,8 +94,8 @@ export const en: Dict = {
     heading: "Things worth knowing before you try it",
     items: [
       {
-        title: "A 54 MB first download",
-        body: "The segmentation model has to reach the browser first. Once only, then it stays cached. On a metered connection, do it over Wi-Fi.",
+        title: "12–190 MB first download",
+        body: "It depends on the quality tier. No background removal: 0 MB. Balanced (default) is about 95 MB, 106 MB if the browser uses WebGPU; highest is 179 MB, 190 MB with WebGPU. Once only, then it stays cached. On a metered connection, do it over Wi-Fi.",
       },
       {
         title: "Older devices feel slower",

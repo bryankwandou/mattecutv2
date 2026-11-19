@@ -28,12 +28,12 @@ export const it: Dict = {
   },
   lang: { label: "Lingua" },
   hero: {
-    badge: "Funziona sul tuo dispositivo",
-    titleA: "Solleva il soggetto.",
-    titleB: "Butta il resto.",
-    lead: "Mattecut ritaglia lo sfondo delle immagini dentro il browser stesso. Il file non lascia mai il tuo dispositivo, quindi niente coda, niente quota giornaliera e niente da prendere per buono su cosa succede alla tua foto.",
+    badge: "Edge-AI · Privacy First · Senza account",
+    titleA: "Studio per foto tessera e cataloghi prodotto per piccole imprese",
+    titleB: "Direttamente nel tuo browser",
+    lead: "Rimuovi lo sfondo di una foto, sostituiscilo con uno sfondo da studio formale o crea foto di catalogo prodotto, il tutto elaborato sul tuo dispositivo. Non viene caricato nulla su un server.",
     cta: "Ritaglia la prima immagine",
-    note: "Senza account · senza caricamento · senza filigrana",
+    note: "Provalo ora - senza registrazione",
     caption: "Alpha matte · 8 bit",
   },
   pillars: [
@@ -94,8 +94,8 @@ export const it: Dict = {
     heading: "Cose da sapere prima di provarlo",
     items: [
       {
-        title: "Un primo download da 54 MB",
-        body: "Il modello di segmentazione deve prima arrivare nel browser. Una volta sola, poi resta salvato. Con traffico limitato, fallo in Wi-Fi.",
+        title: "Primo download da 12–190 MB",
+        body: "Dipende dal livello di qualità. Senza rimozione dello sfondo: 0 MB. Bilanciato (predefinito) pesa circa 95 MB, 106 MB se il browser usa WebGPU; il massimo è 179 MB, 190 MB con WebGPU. Una volta sola, poi resta salvato. Con traffico limitato, fallo in Wi-Fi.",
       },
       {
         title: "I dispositivi vecchi vanno più piano",
